@@ -3,9 +3,10 @@
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Logo } from "./Logo";
-import { Home, BookOpen, Trophy, User, Store, Flame, Coins } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Home, BookOpen, Trophy, User, Store, Flame, Coins, LogOut } from "lucide-react";
 
 const nav = [
   { to: "/home", label: "Home", icon: Home },
@@ -22,6 +23,7 @@ const subPaths = [
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [streak, setStreak] = useState(0);
   const [points, setPoints] = useState(0);
 
@@ -33,6 +35,11 @@ export function AppShell({ children }: { children: ReactNode }) {
 
     return () => window.clearTimeout(timer);
   }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("isLoggedIn");
+    router.push("/home");
+  };
 
   return (
     <div className="flex min-h-screen flex-col bg-background md:flex-row">
@@ -90,6 +97,17 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
             <span className="flex-none text-yellow-500">{points.toLocaleString("id-ID")}</span>
           </div>
+        </div>
+        <div className="border-t border-sidebar-border p-3">
+          <Button
+            type="button"
+            variant="ghost"
+            className="w-full justify-start text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+            onClick={handleLogout}
+          >
+            <LogOut className="h-4 w-4" />
+            Log out
+          </Button>
         </div>
       </aside>
       <main className="flex-1 overflow-x-hidden">

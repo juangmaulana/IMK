@@ -8,7 +8,7 @@ export default function HomeClient() {
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      setSignedIn(localStorage.getItem("hasSignedUp") === "true");
+      setSignedIn(localStorage.getItem("isLoggedIn") === "true");
     }, 0);
 
     return () => window.clearTimeout(timer);

@@ -54,6 +54,7 @@ export default function LoginPage() {
               setError("Akun belum terdaftar. Silakan daftar terlebih dahulu.");
               return;
             }
+            localStorage.setItem("isLoggedIn", "true");
             updateDailyLoginStreak();
             router.push("/home");
           }}
