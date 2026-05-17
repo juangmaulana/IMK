@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { X, Coins, Check, Lock, Trophy, Award, Medal, RefreshCcw } from "lucide-react";
@@ -8,16 +8,31 @@ import { Button } from "@/components/ui/button";
 import { pinjolPathData } from "@/data/pinjol-content";
 import { penipuanPathData } from "@/data/penipuan-content";
 
-const PATHS: Record<string, any> = {
+type SearchParams = Record<string, string | string[] | undefined>;
+type QuizQuestion = {
+  id?: string;
+  question: string;
+  options?: string[];
+  answer?: string;
+  explanation?: string;
+};
+type QuizData = {
+  questions?: QuizQuestion[];
+};
+type LearningPathData = {
+  modules?: unknown[];
+  preQuiz?: QuizData;
+  finalQuiz?: QuizData;
+};
+
+const PATHS: Record<string, LearningPathData> = {
   pinjol: pinjolPathData,
   penipuan: penipuanPathData,
 };
 
-type SearchParams = Record<string, string | string[] | undefined>;
-
 const normalize = (value: string) => value.replace(/^[A-D]\.[\s]*/, "").trim();
 
-const resolveCorrectIndex = (question: any) => {
+const resolveCorrectIndex = (question: QuizQuestion) => {
   const answer = normalize(String(question.answer ?? ""));
   if (/^[A-D]$/.test(answer)) {
     return answer.charCodeAt(0) - 65;
@@ -30,8 +45,8 @@ const resolveCorrectIndex = (question: any) => {
   return 0;
 };
 
-const mapQuestions = (quizData: any, tag: string) =>
-  (quizData?.questions || []).map((question: any) => ({
+const mapQuestions = (quizData: QuizData | undefined, tag: string) =>
+  (quizData?.questions || []).map((question) => ({
     tag,
     prompt: question.question,
     options: (question.options || []).map((option: string) => normalize(option)),
@@ -44,12 +59,19 @@ const getParam = (value: string | string[] | undefined, fallback: string) => {
   return value ?? fallback;
 };
 
+const addPoints = (amount: number) => {
+  const currentPoints = Number(localStorage.getItem("totalPoints") || 0);
+  localStorage.setItem("totalPoints", (currentPoints + amount).toString());
+};
+
 export default function QuizClient({ searchParams }: { searchParams: SearchParams }) {
   const router = useRouter();
   const isFinal = getParam(searchParams.type, "") === "final";
   const pathId = getParam(searchParams.pathId, "pinjol");
   const pathData = PATHS[pathId] || pinjolPathData;
   const progressKey = `${pathId}Progress`;
+  const finalUnlockStep = (pathData.modules?.length || 0) + 1;
+  const finalCompleteStep = (pathData.modules?.length || 0) + 2;
 
   const questions = useMemo(() => {
     const quizData = isFinal ? pathData.finalQuiz ?? pathData.preQuiz : pathData.preQuiz;
@@ -61,6 +83,17 @@ export default function QuizClient({ searchParams }: { searchParams: SearchParam
   const [score, setScore] = useState(0);
   const [finalScore, setFinalScore] = useState(0);
   const [showResult, setShowResult] = useState(false);
+  const [pathProgress, setPathProgress] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!isFinal) return;
+
+    const timer = window.setTimeout(() => {
+      setPathProgress(Number(localStorage.getItem(progressKey) || 0));
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, [isFinal, progressKey]);
 
   const total = questions.length || 1;
   const current = questions[idx];
@@ -79,11 +112,39 @@ export default function QuizClient({ searchParams }: { searchParams: SearchParam
     );
   }
 
+  if (isFinal && pathProgress === null) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background px-6 py-8">
+        <div className="w-full max-w-md rounded-2xl border bg-card p-8 text-center shadow-card">
+          <h1 className="text-2xl font-bold">Memeriksa progress...</h1>
+          <p className="mt-2 text-sm text-muted-foreground">Sebentar, kami sedang memastikan quiz akhir sudah terbuka.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isFinal && Number(pathProgress || 0) < finalUnlockStep) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background px-6 py-8">
+        <div className="w-full max-w-md rounded-2xl border bg-card p-8 text-center shadow-card">
+          <h1 className="text-2xl font-bold">Quiz akhir terkunci</h1>
+          <p className="mt-2 text-sm text-muted-foreground">Selesaikan semua modul di learning path ini terlebih dahulu.</p>
+          <Button asChild className="mt-6">
+            <Link href={`/app/paths/${pathId}`}>Kembali ke Learning Path</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   const submitted = picked !== null;
   const isCorrect = picked === current.correct;
 
   const next = () => {
     const nextScore = score + (isCorrect ? 1 : 0);
+    if (isCorrect) {
+      addPoints(10);
+    }
 
     if (idx + 1 === total) {
       if (isFinal) {
@@ -110,8 +171,8 @@ export default function QuizClient({ searchParams }: { searchParams: SearchParam
     const finalPercentage = (totalScore / total) * 100;
     if (finalPercentage >= 70) {
       const currentProgress = Number(localStorage.getItem(progressKey) || 0);
-      if (currentProgress < 6) {
-        localStorage.setItem(progressKey, "6");
+      if (currentProgress < finalCompleteStep) {
+        localStorage.setItem(progressKey, finalCompleteStep.toString());
       }
     }
     router.push(`/app/paths/${pathId}`);

@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Logo } from "./Logo";
-import { Home, BookOpen, Trophy, User, Store, Flame, Coins, Lock } from "lucide-react";
+import { Home, BookOpen, Trophy, User, Store, Flame, Coins } from "lucide-react";
 
 const nav = [
   { to: "/home", label: "Home", icon: Home },
@@ -24,12 +24,14 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [streak, setStreak] = useState(0);
   const [points, setPoints] = useState(0);
-  const [pinjolProgress, setPinjolProgress] = useState(0);
 
   useEffect(() => {
-    setStreak(Number(localStorage.getItem("dailyStreak") || 0));
-    setPoints(Number(localStorage.getItem("totalPoints") || 0));
-    setPinjolProgress(Number(localStorage.getItem("pinjolProgress") || 0));
+    const timer = window.setTimeout(() => {
+      setStreak(Number(localStorage.getItem("dailyStreak") || 0));
+      setPoints(Number(localStorage.getItem("totalPoints") || 0));
+    }, 0);
+
+    return () => window.clearTimeout(timer);
   }, []);
 
   return (
@@ -56,30 +58,17 @@ export function AppShell({ children }: { children: ReactNode }) {
                 </Link>
                 {n.to === "/app/paths" && active && (
                   <div className="ml-8 mt-1 space-y-1 border-l border-sidebar-border pl-3">
-                    {subPaths.map((s, idx) => {
-                      const isLocked = idx === 1 && pinjolProgress < 6;
-
-                      if (isLocked) {
-                        return (
-                          <div key={s.to} className="flex items-center gap-2 px-2 py-1 text-xs text-sidebar-foreground/30 cursor-not-allowed">
-                            <Lock className="h-3 w-3" />
-                            {s.label}
-                          </div>
-                        );
-                      }
-
-                      return (
-                        <Link
-                          key={s.to}
-                          href={s.to}
-                          className={`block rounded px-2 py-1 text-xs ${
-                            pathname === s.to ? "text-primary font-bold" : "text-sidebar-foreground/60 hover:text-sidebar-foreground"
-                          }`}
-                        >
-                          {s.label}
-                        </Link>
-                      );
-                    })}
+                    {subPaths.map((s) => (
+                      <Link
+                        key={s.to}
+                        href={s.to}
+                        className={`block rounded px-2 py-1 text-xs ${
+                          pathname === s.to ? "text-primary font-bold" : "text-sidebar-foreground/60 hover:text-sidebar-foreground"
+                        }`}
+                      >
+                        {s.label}
+                      </Link>
+                    ))}
                   </div>
                 )}
               </div>
@@ -87,13 +76,19 @@ export function AppShell({ children }: { children: ReactNode }) {
           })}
         </nav>
         <div className="m-3 rounded-lg bg-sidebar-accent/60 p-3 text-sm font-bold flex flex-col gap-3">
-          <div className="flex items-center gap-2">
-            <Flame className={`h-5 w-5 ${streak > 0 ? "text-orange-500" : "text-muted-foreground"}`} fill={streak > 0 ? "currentColor" : "none"} />
-            <span className={streak > 0 ? "text-orange-500" : "text-muted-foreground"}>{streak}</span>
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex min-w-0 items-center gap-2 text-xs text-sidebar-foreground/70">
+              <Flame className={`h-5 w-5 flex-none ${streak > 0 ? "text-orange-500" : "text-muted-foreground"}`} fill={streak > 0 ? "currentColor" : "none"} />
+              <span>Daily Streak:</span>
+            </div>
+            <span className={`flex-none ${streak > 0 ? "text-orange-500" : "text-muted-foreground"}`}>{streak}</span>
           </div>
-          <div className="flex items-center gap-2 text-yellow-500">
-            <Coins className="h-5 w-5" fill="currentColor" />
-            <span>{points}</span>
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex min-w-0 items-center gap-2 text-xs text-sidebar-foreground/70">
+              <Coins className="h-5 w-5 flex-none text-yellow-500" fill="currentColor" />
+              <span>Total Points:</span>
+            </div>
+            <span className="flex-none text-yellow-500">{points.toLocaleString("id-ID")}</span>
           </div>
         </div>
       </aside>

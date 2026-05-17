@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Snowflake, Shield, Lock, Rocket, Coins } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { HeaderActions } from "@/components/HeaderActions";
 
 const items = [
   { icon: Snowflake, name: "Pertahankan Streak", desc: "Pertahankan streak Anda meskipun melewatkan satu hari. Penting untuk pembelajaran konsisten.", price: 500 },
@@ -15,12 +16,19 @@ export default function StorePage() {
   const [balance, setBalance] = useState(0);
 
   useEffect(() => {
-    setBalance(Number(localStorage.getItem("totalPoints") || 0));
+    const timer = window.setTimeout(() => {
+      setBalance(Number(localStorage.getItem("totalPoints") || 0));
+    }, 0);
+
+    return () => window.clearTimeout(timer);
   }, []);
 
   return (
     <div className="px-6 py-6 md:px-8">
-      <h1 className="text-sm font-bold uppercase tracking-wider text-primary">Toko Peningkatan</h1>
+      <div className="flex items-center justify-between gap-4">
+        <h1 className="text-sm font-bold uppercase tracking-wider text-primary">Toko Peningkatan</h1>
+        <HeaderActions />
+      </div>
 
       <div className="mt-4 flex flex-col items-start justify-between gap-6 rounded-xl border border-border bg-card p-8 lg:flex-row">
         <div>

@@ -5,7 +5,6 @@
 @source "../data";
 @source "../hooks";
 @source "../lib";
-@source "../routes";
 
 @custom-variant dark (&:is(.dark *));
 

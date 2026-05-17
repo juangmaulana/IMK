@@ -8,6 +8,29 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+const dateKey = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+const updateDailyLoginStreak = () => {
+  const today = dateKey(new Date());
+  const yesterdayDate = new Date();
+  yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+  const yesterday = dateKey(yesterdayDate);
+  const lastLoginDate = localStorage.getItem("lastLoginDate");
+
+  if (lastLoginDate === today) return;
+
+  const currentStreak = Number(localStorage.getItem("dailyStreak") || 0);
+  const nextStreak = lastLoginDate === yesterday ? currentStreak + 1 : 1;
+
+  localStorage.setItem("dailyStreak", nextStreak.toString());
+  localStorage.setItem("lastLoginDate", today);
+};
+
 export default function LoginPage() {
   const router = useRouter();
   const [error, setError] = useState("");
@@ -31,6 +54,7 @@ export default function LoginPage() {
               setError("Akun belum terdaftar. Silakan daftar terlebih dahulu.");
               return;
             }
+            updateDailyLoginStreak();
             router.push("/home");
           }}
         >

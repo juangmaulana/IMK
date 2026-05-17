@@ -1,32 +1,93 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Bell, Shield, Lock, Rocket, Flame, Coins } from "lucide-react";
+import Link from "next/link";
+import { Bell, Shield, Lock, Rocket, Flame, Coins, Check, Pencil, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { HeaderActions } from "@/components/HeaderActions";
 
 const cards = [
-  { icon: Bell, name: "Notifikasi", desc: "Pertahankan streak Anda meskipun melewatkan satu hari. Penting untuk pembelajaran konsisten.", cta: "Periksa" },
-  { icon: Shield, name: "Koleksi Lencana", desc: "Buka slot tambahan untuk memamerkan pencapaian Anda kepada komunitas.", cta: "Pergi" },
-  { icon: Lock, name: "Privasi Akun", desc: "Lindungi poin Anda dari penurunan peringkat selama 48 jam. Amankan posisi Anda.", cta: "Periksa" },
-  { icon: Rocket, name: "Inventaris Peningkatan", desc: "Dapatkan 2x FinPoin untuk 3 modul berikutnya. Percepat hadiah Anda.", cta: "Periksa" },
+  { icon: Bell, name: "Notifikasi", desc: "Atur pengingat belajar, streak, quiz, dan kabar keamanan finansial.", cta: "Periksa", href: "/app/profile/notifications" },
+  { icon: Shield, name: "Koleksi Lencana", desc: "Lihat badge, sertifikat, dan progres pencapaian FINLIT Anda.", cta: "Pergi", href: "/app/profile/badges" },
+  { icon: Lock, name: "Privasi Akun", desc: "Kelola visibilitas profil, leaderboard, dan keamanan akun.", cta: "Periksa", href: "/app/profile/privacy" },
+  { icon: Rocket, name: "Inventaris Peningkatan", desc: "Gunakan boost untuk menjaga streak dan mempercepat FinPoin.", cta: "Periksa", href: "/app/profile/inventory" },
 ];
 
 export default function ProfilePage() {
   const [streak, setStreak] = useState(0);
   const [points, setPoints] = useState(0);
+  const [displayName, setDisplayName] = useState("Nama Pengguna");
+  const [draftName, setDraftName] = useState("Nama Pengguna");
+  const [editingName, setEditingName] = useState(false);
 
   useEffect(() => {
-    setStreak(Number(localStorage.getItem("dailyStreak") || 0));
-    setPoints(Number(localStorage.getItem("totalPoints") || 0));
+    const timer = window.setTimeout(() => {
+      setStreak(Number(localStorage.getItem("dailyStreak") || 0));
+      setPoints(Number(localStorage.getItem("totalPoints") || 0));
+      const savedName = localStorage.getItem("profileName") || "Nama Pengguna";
+      setDisplayName(savedName);
+      setDraftName(savedName);
+    }, 0);
+
+    return () => window.clearTimeout(timer);
   }, []);
+
+  const saveName = () => {
+    const nextName = draftName.trim();
+    if (!nextName) return;
+
+    localStorage.setItem("profileName", nextName);
+    setDisplayName(nextName);
+    setDraftName(nextName);
+    setEditingName(false);
+  };
+
+  const cancelEditName = () => {
+    setDraftName(displayName);
+    setEditingName(false);
+  };
 
   return (
     <div className="px-6 py-6 md:px-8">
-      <h1 className="text-sm font-bold uppercase tracking-wider text-primary">Profil</h1>
+      <div className="flex items-center justify-between gap-4">
+        <h1 className="text-sm font-bold uppercase tracking-wider text-primary">Profil</h1>
+        <HeaderActions variant="settings" />
+      </div>
 
       <div className="mt-4 flex flex-col items-start justify-between gap-6 rounded-xl border border-border bg-card p-8 lg:flex-row">
-        <div>
-          <h2 className="font-display text-4xl font-bold text-gradient-accent">Nama Pengguna</h2>
+        <div className="w-full max-w-xl">
+          {editingName ? (
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <Input
+                value={draftName}
+                onChange={(event) => setDraftName(event.target.value)}
+                className="h-12 max-w-sm bg-input text-xl font-bold"
+                maxLength={40}
+                autoFocus
+              />
+              <div className="flex gap-2">
+                <Button size="icon" onClick={saveName} disabled={!draftName.trim()} aria-label="Simpan nama">
+                  <Check className="h-4 w-4" />
+                </Button>
+                <Button size="icon" variant="secondary" onClick={cancelEditName} aria-label="Batalkan edit nama">
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-wrap items-center gap-3">
+              <h2 className="font-display text-4xl font-bold text-gradient-accent">{displayName}</h2>
+              <Button
+                size="icon"
+                variant="secondary"
+                onClick={() => setEditingName(true)}
+                aria-label="Edit nama profil"
+              >
+                <Pencil className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
           <p className="mt-2 max-w-md text-sm text-muted-foreground">Bekali diri Anda dengan alat untuk melindungi progres dan mempercepat literasi finansial Anda.</p>
         </div>
         <div className="rounded-lg border border-border bg-secondary/40 p-4 text-xl font-bold flex gap-6">
@@ -49,7 +110,9 @@ export default function ProfilePage() {
             </div>
             <div className="mt-4 font-bold">{c.name}</div>
             <p className="mt-1 text-xs text-muted-foreground">{c.desc}</p>
-            <Button variant="secondary" size="sm" className="mt-5">{c.cta}</Button>
+            <Button asChild variant="secondary" size="sm" className="mt-5">
+              <Link href={c.href}>{c.cta}</Link>
+            </Button>
           </div>
         ))}
       </div>

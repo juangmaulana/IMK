@@ -103,7 +103,7 @@ function Calendar({
         disabled: cn("text-muted-foreground opacity-50", defaultClassNames.disabled),
         hidden: cn("invisible", defaultClassNames.hidden),
         ...classNames,
-      } as any}
+      } as React.ComponentProps<typeof DayPicker>["classNames"]}
       components={{
         Root: ({ className, rootRef, ...props }) => {
           return <div data-slot="calendar" ref={rootRef} className={cn(className)} {...props} />;

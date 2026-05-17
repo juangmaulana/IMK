@@ -7,7 +7,11 @@ export default function HomeClient() {
   const [signedIn, setSignedIn] = useState(false);
 
   useEffect(() => {
-    setSignedIn(localStorage.getItem("hasSignedUp") === "true");
+    const timer = window.setTimeout(() => {
+      setSignedIn(localStorage.getItem("hasSignedUp") === "true");
+    }, 0);
+
+    return () => window.clearTimeout(timer);
   }, []);
 
   return <Landing signedIn={signedIn} />;

@@ -1,5 +1,6 @@
 "use client";
 
+import type { ComponentType, InputHTMLAttributes } from "react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -8,7 +9,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-function Field({ label, icon: Icon, type = "text", placeholder, ...props }: any) {
+type FieldProps = InputHTMLAttributes<HTMLInputElement> & {
+  label: string;
+  icon: ComponentType<{ className?: string }>;
+  placeholder: string;
+};
+
+function Field({ label, icon: Icon, type = "text", placeholder, ...props }: FieldProps) {
   return (
     <div className="space-y-2">
       <Label className="text-[11px] uppercase tracking-widest text-muted-foreground">{label}</Label>

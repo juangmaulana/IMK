@@ -1,0 +1,18 @@
+{
+  "name": "finlit-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Backend API untuk fitur FINLIT dengan PostgreSQL.",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "node src/server.js",
+    "start": "node src/server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "pg": "^8.16.3"
+  }
+}

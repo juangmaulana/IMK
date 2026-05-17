@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Bell, Settings, User, Play, Lock, Check } from "lucide-react";
+import { Play, Lock, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { HeaderActions } from "@/components/HeaderActions";
 
 export type Module = { label: string; locked?: boolean };
 
@@ -20,18 +21,16 @@ export function LearningPath({
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    setProgress(Number(localStorage.getItem(progressKey) || 0));
+    const timer = window.setTimeout(() => {
+      setProgress(Number(localStorage.getItem(progressKey) || 0));
+    }, 0);
+
+    return () => window.clearTimeout(timer);
   }, [progressKey]);
 
-  const progressPercent = Math.min(100, Math.max(5, (progress / 6) * 100));
-
-  const completeModule = (moduleIndex: number) => {
-    const newProgress = moduleIndex + 1;
-    if (newProgress > progress) {
-      setProgress(newProgress);
-      localStorage.setItem(progressKey, newProgress.toString());
-    }
-  };
+  const finalUnlockStep = modules.length + 1;
+  const finalCompleteStep = modules.length + 2;
+  const progressPercent = Math.min(100, Math.max(5, (progress / finalCompleteStep) * 100));
 
   return (
     <div className="px-8 py-6">
@@ -43,11 +42,7 @@ export function LearningPath({
           </div>
           <div className="mt-1 text-[10px] text-muted-foreground">{Math.round(progressPercent)}%</div>
         </div>
-        <div className="flex gap-2">
-          <button className="rounded-md p-2 hover:bg-secondary"><Bell className="h-4 w-4" /></button>
-          <button className="rounded-md p-2 hover:bg-secondary"><Settings className="h-4 w-4" /></button>
-          <button className="rounded-md p-2 hover:bg-secondary"><User className="h-4 w-4" /></button>
-        </div>
+        <HeaderActions />
       </div>
 
       <div className="mx-auto mt-10 max-w-2xl text-center">
@@ -75,9 +70,9 @@ export function LearningPath({
         </div>
 
         {modules.map((m, i) => {
-          const moduleIndex = i + 1;
-          const isUnlocked = progress >= moduleIndex;
-          const isCompleted = progress > moduleIndex;
+          const moduleNumber = i + 1;
+          const isUnlocked = progress >= moduleNumber;
+          const isCompleted = progress > moduleNumber;
           return (
             <ModuleCard 
               key={i} 
@@ -86,24 +81,23 @@ export function LearningPath({
               side={i % 2 === 0 ? "left" : "right"} 
               isUnlocked={isUnlocked}
               isCompleted={isCompleted}
-              onComplete={() => completeModule(moduleIndex)}
               pathId={pathId}
             />
           );
         })}
 
-        <div className={`relative z-10 mx-auto w-44 rounded-xl border p-5 text-center ${progress >= 5 ? "border-primary/40 bg-card shadow-glow" : "border-border bg-card opacity-70"}`}>
+        <div className={`relative z-10 mx-auto w-44 rounded-xl border p-5 text-center ${progress >= finalUnlockStep ? "border-primary/40 bg-card shadow-glow" : "border-border bg-card opacity-70"}`}>
           <div className="mx-auto inline-flex h-8 w-8 items-center justify-center rounded-md bg-secondary">
-            {progress >= 5 ? <Play className="h-4 w-4 text-primary" fill="currentColor" /> : <Lock className="h-4 w-4 text-muted-foreground" />}
+            {progress >= finalUnlockStep ? <Play className="h-4 w-4 text-primary" fill="currentColor" /> : <Lock className="h-4 w-4 text-muted-foreground" />}
           </div>
           <div className="mt-3 font-bold">Quiz Akhir & Badge</div>
           <div className="mt-1 text-[11px] text-muted-foreground">
-            {progress >= 5 ? "Terbuka! Uji pemahamanmu." : "Selesaikan semua modul untuk membuka."}
+            {progress >= finalUnlockStep ? "Terbuka! Uji pemahamanmu." : "Selesaikan semua modul untuk membuka."}
           </div>
-          {progress >= 5 && (
+          {progress >= finalUnlockStep && (
             <Button asChild size="sm" className="mt-4 w-full">
               <Link href={`/quiz?pathId=${pathId}&type=final`}>
-                {progress === 6 ? "Ulangi Quiz" : "Mulai Quiz"}
+                {progress >= finalCompleteStep ? "Ulangi Quiz" : "Mulai Quiz"}
               </Link>
             </Button>
           )}
@@ -140,7 +134,6 @@ function ModuleCard({
   side,
   isUnlocked,
   isCompleted,
-  onComplete,
   pathId
 }: { 
   index: number; 
@@ -148,23 +141,22 @@ function ModuleCard({
   side: "left" | "right";
   isUnlocked: boolean;
   isCompleted: boolean;
-  onComplete: () => void;
   pathId: string;
 }) {
   return (
     <div className={`relative z-10 flex ${side === "right" ? "justify-end" : "justify-start"}`}>
       <div className={`w-72 rounded-xl border p-5 transition-all ${
         isCompleted ? "border-success bg-success/10" : 
-        isUnlocked ? "border-primary/40 bg-card shadow-glow" : 
+        isUnlocked ? "border-primary/40 bg-card shadow-glow" :
         "border-border bg-card opacity-70"
       }`}>
         <div className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider ${
           isCompleted ? "text-success" : 
-          isUnlocked ? "text-primary" : 
+          isUnlocked ? "text-primary" :
           "text-muted-foreground"
         }`}>
           {isCompleted ? <Check className="h-3 w-3" /> : 
-           isUnlocked ? <Play className="h-3 w-3" fill="currentColor" /> : 
+           isUnlocked ? <Play className="h-3 w-3" fill="currentColor" /> :
            <Lock className="h-3 w-3" />}
           {isCompleted ? "Selesai" : isUnlocked ? "Terbuka" : "Terkunci"}
         </div>
