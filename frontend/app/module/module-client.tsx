@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import { ChevronLeft, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { pinjolPathData } from "@/data/pinjol-content";
 import { penipuanPathData } from "@/data/penipuan-content";
+import { apiRequest, getEffectivePathProgress, getPathProgress, markModuleCompleted, syncUserToLocalStorage, type ApiUser } from "@/lib/api";
 
 type SearchParams = Record<string, string | string[] | undefined>;
 type MiniQuizQuestion = {
@@ -52,12 +52,10 @@ const resolveCorrectIndex = (question: MiniQuizQuestion) => {
 };
 
 export default function ModuleClient({ searchParams }: { searchParams: SearchParams }) {
-  const router = useRouter();
   const moduleId = Number(getParam(searchParams.id, "1"));
   const pathId = getParam(searchParams.pathId, "pinjol");
   const pathData = PATHS[pathId] || pinjolPathData;
   const moduleData = pathData.modules[moduleId - 1];
-  const progressKey = `${pathId}Progress`;
   const [accessProgress, setAccessProgress] = useState<number | null>(null);
   const [miniQuizAnswers, setMiniQuizAnswers] = useState<Record<number, number>>({});
   const [miniQuizSubmitted, setMiniQuizSubmitted] = useState(false);
@@ -66,11 +64,20 @@ export default function ModuleClient({ searchParams }: { searchParams: SearchPar
   useEffect(() => {
     window.scrollTo(0, 0);
     const timer = window.setTimeout(() => {
-      setAccessProgress(Number(localStorage.getItem(progressKey) || 0));
+      setAccessProgress(getEffectivePathProgress(pathId));
     }, 0);
 
+    apiRequest<{ user: ApiUser }>("/auth/me")
+      .then(({ user }) => {
+        syncUserToLocalStorage(user);
+        setAccessProgress(getEffectivePathProgress(pathId));
+      })
+      .catch(() => {
+        // Tetap gunakan progress lokal jika API belum tersedia.
+      });
+
     return () => window.clearTimeout(timer);
-  }, [moduleId, pathId, progressKey]);
+  }, [moduleId, pathId]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -139,12 +146,28 @@ export default function ModuleClient({ searchParams }: { searchParams: SearchPar
   const finishModule = () => {
     if (!canFinishModule) return;
 
-    const currentProgress = Number(localStorage.getItem(progressKey) || 0);
-    const newProgress = moduleId + 1;
-    if (newProgress > currentProgress) {
-      localStorage.setItem(progressKey, newProgress.toString());
-    }
-    router.push(`/app/paths/${pathId}`);
+    const currentProgress = getPathProgress(pathId);
+    const savedProgress = markModuleCompleted(pathId, moduleId);
+    setAccessProgress(Math.max(accessProgress || 0, savedProgress));
+
+    void (async () => {
+      try {
+        const unlockProgress = Math.max(currentProgress, moduleId);
+        await apiRequest<{ progress: Record<string, number> }>("/progress", {
+          method: "PATCH",
+          body: JSON.stringify({ pathId, progress: unlockProgress }),
+        });
+        const payload = await apiRequest<{ user: ApiUser }>(`/paths/${pathId}/modules/${moduleId}/complete`, {
+          method: "POST",
+          body: JSON.stringify({ miniQuizCompleted: !hasMiniQuiz || miniQuizSubmitted || moduleAlreadyCompleted }),
+        });
+        syncUserToLocalStorage(payload.user);
+      } catch {
+        // Jika API belum tersedia, progress lokal tetap dipakai.
+      }
+    })();
+
+    window.location.assign(`/app/paths/${pathId}?progress=${savedProgress}&updated=${Date.now()}`);
   };
 
   return (

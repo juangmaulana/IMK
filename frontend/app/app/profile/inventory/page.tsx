@@ -11,14 +11,14 @@ const boosts = [
 
 export default function InventoryPage() {
   return (
-    <div className="px-6 py-6 md:px-8">
+    <div className="min-h-screen bg-[#0f0f0f] px-6 py-6 text-[#f1eeee] md:px-8">
       <Button asChild variant="ghost" size="sm" className="-ml-2">
         <Link href="/app/profile"><ChevronLeft className="h-4 w-4" /> Profil</Link>
       </Button>
 
-      <section className="mt-4 flex flex-col items-start justify-between gap-6 rounded-xl border border-border bg-card p-8 lg:flex-row">
+      <section className="mt-4 flex flex-col items-start justify-between gap-6 rounded-xl border border-[#242020] bg-[#161313] p-8 lg:flex-row">
         <div>
-          <div className="inline-flex h-11 w-11 items-center justify-center rounded-md bg-secondary">
+          <div className="inline-flex h-11 w-11 items-center justify-center rounded-md bg-[#201b1a]">
             <Rocket className="h-5 w-5 text-primary" />
           </div>
           <h1 className="mt-5 text-3xl font-bold">Inventaris Peningkatan</h1>
@@ -26,7 +26,7 @@ export default function InventoryPage() {
             Simpan dan gunakan boost seperti power-up belajar. Cocok untuk menjaga momentum saat mengejar badge.
           </p>
         </div>
-        <div className="rounded-lg border border-border bg-secondary/40 p-4 text-right">
+        <div className="rounded-lg border border-[#2d2725] bg-[#201b1a] p-4 text-right">
           <div className="flex items-center justify-end gap-2 text-[10px] uppercase tracking-wider text-muted-foreground">
             <Coins className="h-3 w-3" /> Saldo Tersedia
           </div>
@@ -36,12 +36,12 @@ export default function InventoryPage() {
 
       <div className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         {boosts.map((boost) => (
-          <div key={boost.name} className="rounded-xl border border-border bg-card p-5">
+          <div key={boost.name} className="rounded-xl border border-[#242020] bg-[#161313] p-5">
             <div className="flex items-center justify-between">
-              <div className="inline-flex h-11 w-11 items-center justify-center rounded-md bg-secondary">
+              <div className="inline-flex h-11 w-11 items-center justify-center rounded-md bg-[#201b1a]">
                 <boost.icon className="h-5 w-5 text-primary" />
               </div>
-              <span className="rounded-md border border-border bg-secondary px-2 py-1 text-xs font-bold">x{boost.count}</span>
+              <span className="rounded-md border border-[#2d2725] bg-[#201b1a] px-2 py-1 text-xs font-bold">x{boost.count}</span>
             </div>
             <h2 className="mt-5 font-bold">{boost.name}</h2>
             <p className="mt-1 min-h-10 text-xs text-muted-foreground">{boost.desc}</p>

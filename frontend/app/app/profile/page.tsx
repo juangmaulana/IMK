@@ -6,6 +6,7 @@ import { Bell, Shield, Lock, Rocket, Flame, Coins, Check, Pencil, X } from "luci
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { HeaderActions } from "@/components/HeaderActions";
+import { apiRequest, syncUserToLocalStorage, type ApiUser } from "@/lib/api";
 
 const cards = [
   { icon: Bell, name: "Notifikasi", desc: "Atur pengingat belajar, streak, quiz, dan kabar keamanan finansial.", cta: "Periksa", href: "/app/profile/notifications" },
@@ -30,10 +31,22 @@ export default function ProfilePage() {
       setDraftName(savedName);
     }, 0);
 
+    apiRequest<{ user: ApiUser }>("/auth/me")
+      .then(({ user }) => {
+        syncUserToLocalStorage(user);
+        setStreak(user.dailyStreak || 0);
+        setPoints(user.points || 0);
+        setDisplayName(user.name);
+        setDraftName(user.name);
+      })
+      .catch(() => {
+        // Tetap gunakan cache lokal jika API belum tersedia.
+      });
+
     return () => window.clearTimeout(timer);
   }, []);
 
-  const saveName = () => {
+  const saveName = async () => {
     const nextName = draftName.trim();
     if (!nextName) return;
 
@@ -41,6 +54,18 @@ export default function ProfilePage() {
     setDisplayName(nextName);
     setDraftName(nextName);
     setEditingName(false);
+
+    try {
+      const { user } = await apiRequest<{ user: ApiUser }>("/profile", {
+        method: "PATCH",
+        body: JSON.stringify({ name: nextName }),
+      });
+      syncUserToLocalStorage(user);
+      setDisplayName(user.name);
+      setDraftName(user.name);
+    } catch {
+      // Nama lokal tetap tersimpan jika API belum tersedia.
+    }
   };
 
   const cancelEditName = () => {
@@ -49,13 +74,13 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="px-6 py-6 md:px-8">
+    <div className="min-h-screen bg-[#0f0f0f] px-6 py-6 text-[#f1eeee] md:px-8">
       <div className="flex items-center justify-between gap-4">
         <h1 className="text-sm font-bold uppercase tracking-wider text-primary">Profil</h1>
         <HeaderActions variant="settings" />
       </div>
 
-      <div className="mt-4 flex flex-col items-start justify-between gap-6 rounded-xl border border-border bg-card p-8 lg:flex-row">
+      <div className="mt-4 flex flex-col items-start justify-between gap-6 rounded-xl border border-[#242020] bg-[#161313] p-8 lg:flex-row">
         <div className="w-full max-w-xl">
           {editingName ? (
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -90,7 +115,7 @@ export default function ProfilePage() {
           )}
           <p className="mt-2 max-w-md text-sm text-muted-foreground">Bekali diri Anda dengan alat untuk melindungi progres dan mempercepat literasi finansial Anda.</p>
         </div>
-        <div className="rounded-lg border border-border bg-secondary/40 p-4 text-xl font-bold flex gap-6">
+        <div className="rounded-lg border border-[#2d2725] bg-[#201b1a] p-4 text-xl font-bold flex gap-6">
           <div className="flex items-center gap-2">
             <Flame className={`h-6 w-6 ${streak > 0 ? "text-orange-500" : "text-muted-foreground"}`} fill={streak > 0 ? "currentColor" : "none"} />
             <span className={streak > 0 ? "text-orange-500" : "text-muted-foreground"}>{streak}</span>
@@ -104,8 +129,8 @@ export default function ProfilePage() {
 
       <div className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
         {cards.map((c) => (
-          <div key={c.name} className="rounded-xl border border-border bg-card p-5">
-            <div className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-secondary">
+          <div key={c.name} className="rounded-xl border border-[#242020] bg-[#161313] p-5">
+            <div className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-[#201b1a]">
               <c.icon className="h-4 w-4 text-primary" />
             </div>
             <div className="mt-4 font-bold">{c.name}</div>

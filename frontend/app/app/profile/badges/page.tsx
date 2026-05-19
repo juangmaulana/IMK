@@ -12,13 +12,13 @@ const badges = [
 
 export default function BadgesPage() {
   return (
-    <div className="px-6 py-6 md:px-8">
+    <div className="min-h-screen bg-[#0f0f0f] px-6 py-6 text-[#f1eeee] md:px-8">
       <Button asChild variant="ghost" size="sm" className="-ml-2">
         <Link href="/app/profile"><ChevronLeft className="h-4 w-4" /> Profil</Link>
       </Button>
 
-      <section className="mt-4 rounded-xl border border-border bg-card p-8">
-        <div className="inline-flex h-11 w-11 items-center justify-center rounded-md bg-secondary">
+      <section className="mt-4 rounded-xl border border-[#242020] bg-[#161313] p-8">
+        <div className="inline-flex h-11 w-11 items-center justify-center rounded-md bg-[#201b1a]">
           <ShieldCheck className="h-5 w-5 text-primary" />
         </div>
         <h1 className="mt-5 text-3xl font-bold">Koleksi Lencana</h1>
@@ -29,9 +29,9 @@ export default function BadgesPage() {
 
       <div className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         {badges.map((badge) => (
-          <div key={badge.title} className={`rounded-xl border p-5 ${badge.earned ? "border-primary/50 bg-primary/10 shadow-glow" : "border-border bg-card"}`}>
+          <div key={badge.title} className={`rounded-xl border p-5 ${badge.earned ? "border-primary/50 bg-primary/10 shadow-glow" : "border-[#242020] bg-[#161313]"}`}>
             <div className="flex items-center justify-between">
-              <div className="inline-flex h-12 w-12 items-center justify-center rounded-md bg-secondary">
+              <div className="inline-flex h-12 w-12 items-center justify-center rounded-md bg-[#201b1a]">
                 <badge.icon className="h-6 w-6 text-primary" />
               </div>
               {!badge.earned && <Lock className="h-4 w-4 text-muted-foreground" />}

@@ -99,9 +99,12 @@
 
 @layer base {
   * { border-color: var(--color-border); }
-  html { color-scheme: dark; }
+  html {
+    color-scheme: dark;
+    background-color: #0f0f0f;
+  }
   body {
-    background-color: var(--color-background);
+    background-color: #0f0f0f;
     color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;

@@ -7,6 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { Logo } from "./Logo";
 import { Button } from "@/components/ui/button";
 import { Home, BookOpen, Trophy, User, Store, Flame, Coins, LogOut } from "lucide-react";
+import { apiRequest, clearAuthSession, syncUserToLocalStorage, type ApiUser } from "@/lib/api";
 
 const nav = [
   { to: "/home", label: "Home", icon: Home },
@@ -33,17 +34,27 @@ export function AppShell({ children }: { children: ReactNode }) {
       setPoints(Number(localStorage.getItem("totalPoints") || 0));
     }, 0);
 
+    apiRequest<{ user: ApiUser }>("/auth/me")
+      .then(({ user }) => {
+        syncUserToLocalStorage(user);
+        setStreak(user.dailyStreak || 0);
+        setPoints(user.points || 0);
+      })
+      .catch(() => {
+        // Tetap gunakan cache lokal jika backend belum tersedia.
+      });
+
     return () => window.clearTimeout(timer);
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("isLoggedIn");
+    clearAuthSession();
     router.push("/home");
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-background md:flex-row">
-      <aside className="flex w-full flex-col border-r border-sidebar-border bg-sidebar md:min-h-screen md:w-64">
+    <div className="flex flex-col bg-[#0f0f0f] md:h-screen md:flex-row md:overflow-hidden">
+      <aside className="flex w-full flex-col border-r border-sidebar-border bg-sidebar md:h-full md:w-64 md:flex-shrink-0 md:overflow-y-auto">
         <div className="px-6 py-6">
           <Logo subtitle short />
         </div>
@@ -110,7 +121,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </Button>
         </div>
       </aside>
-      <main className="flex-1 overflow-x-hidden">
+      <main className="min-h-screen flex-1 overflow-x-hidden bg-[#0f0f0f] md:min-h-0 md:overflow-y-auto">
         {children}
       </main>
     </div>

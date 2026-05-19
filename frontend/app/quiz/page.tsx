@@ -7,6 +7,7 @@ export const metadata: Metadata = {
 
 type SearchParams = Record<string, string | string[] | undefined>;
 
-export default function QuizPage({ searchParams }: { searchParams: SearchParams }) {
-  return <QuizClient searchParams={searchParams} />;
+export default async function QuizPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
+  const params = await searchParams;
+  return <QuizClient searchParams={params} />;
 }

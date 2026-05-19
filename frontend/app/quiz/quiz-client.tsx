@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { X, Coins, Check, Lock, Trophy, Award, Medal, RefreshCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { pinjolPathData } from "@/data/pinjol-content";
 import { penipuanPathData } from "@/data/penipuan-content";
+import { apiRequest, getPathProgress, setPathProgress as savePathProgress, syncUserToLocalStorage, type ApiUser } from "@/lib/api";
 
 type SearchParams = Record<string, string | string[] | undefined>;
 type QuizQuestion = {
@@ -65,11 +65,9 @@ const addPoints = (amount: number) => {
 };
 
 export default function QuizClient({ searchParams }: { searchParams: SearchParams }) {
-  const router = useRouter();
   const isFinal = getParam(searchParams.type, "") === "final";
   const pathId = getParam(searchParams.pathId, "pinjol");
   const pathData = PATHS[pathId] || pinjolPathData;
-  const progressKey = `${pathId}Progress`;
   const finalUnlockStep = (pathData.modules?.length || 0) + 1;
   const finalCompleteStep = (pathData.modules?.length || 0) + 2;
 
@@ -84,16 +82,17 @@ export default function QuizClient({ searchParams }: { searchParams: SearchParam
   const [finalScore, setFinalScore] = useState(0);
   const [showResult, setShowResult] = useState(false);
   const [pathProgress, setPathProgress] = useState<number | null>(null);
+  const [answers, setAnswers] = useState<number[]>([]);
 
   useEffect(() => {
     if (!isFinal) return;
 
     const timer = window.setTimeout(() => {
-      setPathProgress(Number(localStorage.getItem(progressKey) || 0));
+      setPathProgress(getPathProgress(pathId));
     }, 0);
 
     return () => window.clearTimeout(timer);
-  }, [isFinal, progressKey]);
+  }, [isFinal, pathId]);
 
   const total = questions.length || 1;
   const current = questions[idx];
@@ -140,24 +139,47 @@ export default function QuizClient({ searchParams }: { searchParams: SearchParam
   const submitted = picked !== null;
   const isCorrect = picked === current.correct;
 
+  const submitQuizResult = async (nextAnswers: number[]) => {
+    try {
+      const payload = await apiRequest<{ user: ApiUser | null }>("/quiz/submit", {
+        method: "POST",
+        body: JSON.stringify({
+          pathId,
+          type: isFinal ? "final" : "pre",
+          answers: nextAnswers,
+        }),
+      });
+      if (payload.user) {
+        syncUserToLocalStorage(payload.user);
+      }
+    } catch {
+      // Jika API belum tersedia, user tetap bisa lanjut dengan cache lokal.
+    }
+  };
+
   const next = () => {
+    if (picked === null) return;
+
     const nextScore = score + (isCorrect ? 1 : 0);
+    const nextAnswers = [...answers];
+    nextAnswers[idx] = picked;
+    setAnswers(nextAnswers);
+
     if (isCorrect) {
-      addPoints(10);
+      addPoints(isFinal ? 20 : 10);
     }
 
     if (idx + 1 === total) {
       if (isFinal) {
         setFinalScore(nextScore);
         setShowResult(true);
+        void submitQuizResult(nextAnswers);
         return;
       }
 
-      const currentProgress = Number(localStorage.getItem(progressKey) || 0);
-      if (currentProgress < 1) {
-        localStorage.setItem(progressKey, "1");
-      }
-      router.push(`/app/paths/${pathId}`);
+      savePathProgress(pathId, 1);
+      void submitQuizResult(nextAnswers);
+      window.location.assign(`/app/paths/${pathId}?progress=1&updated=${Date.now()}`);
       return;
     }
 
@@ -170,12 +192,9 @@ export default function QuizClient({ searchParams }: { searchParams: SearchParam
     const totalScore = finalScore;
     const finalPercentage = (totalScore / total) * 100;
     if (finalPercentage >= 70) {
-      const currentProgress = Number(localStorage.getItem(progressKey) || 0);
-      if (currentProgress < finalCompleteStep) {
-        localStorage.setItem(progressKey, finalCompleteStep.toString());
-      }
+      savePathProgress(pathId, finalCompleteStep);
     }
-    router.push(`/app/paths/${pathId}`);
+    window.location.assign(`/app/paths/${pathId}?progress=${getPathProgress(pathId)}&updated=${Date.now()}`);
   };
 
   if (showResult) {

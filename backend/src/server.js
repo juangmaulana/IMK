@@ -8,6 +8,7 @@ const {
   findUserById,
   getLeaderboardUsers,
   healthCheck,
+  insertPointEvent,
   insertModuleCompletion,
   insertPurchase,
   insertQuizAttempt,
@@ -42,15 +43,6 @@ const storeItems = [
     description: "Dapatkan 2x FinPoin untuk 3 modul berikutnya.",
     price: 1000,
   },
-];
-
-const leaderboardSeeds = [
-  { name: "Marcus T.", points: 15200, streak: 12 },
-  { name: "Elena R.", points: 12450, streak: 8 },
-  { name: "Sarah K.", points: 11800, streak: 7 },
-  { name: "David L.", points: 10500, streak: 5 },
-  { name: "Anita K.", points: 9800, streak: 6 },
-  { name: "Maria G.", points: 9250, streak: 4 },
 ];
 
 function nowIso() {
@@ -225,6 +217,21 @@ function updateActivity(user) {
     user.lastActivityDate = today;
   }
   user.updatedAt = nowIso();
+}
+
+async function awardPoints(user, amount, source, metadata = {}) {
+  const points = Number(amount || 0);
+  if (!user || points === 0) return;
+
+  user.points = Number(user.points || 0) + points;
+  await insertPointEvent({
+    id: crypto.randomUUID(),
+    userId: user.id,
+    amount: points,
+    source,
+    metadata,
+    createdAt: nowIso(),
+  });
 }
 
 function setProgress(user, pathId, nextProgress) {
@@ -613,7 +620,7 @@ async function route(req, res) {
       }
 
       const progress = setProgress(user, pathId, moduleNumber + 1);
-      user.points = Number(user.points || 0) + 50;
+      await awardPoints(user, 50, "module_complete", { pathId, moduleNumber });
       updateActivity(user);
       const completion = {
         id: crypto.randomUUID(),
@@ -678,13 +685,13 @@ async function route(req, res) {
       }
 
       if (user) {
-        user.points = Number(user.points || 0) + score * (type === "final" ? 20 : 10);
+        await awardPoints(user, score * (type === "final" ? 20 : 10), "quiz_score", { pathId, type, score, total });
         if (type === "pre") {
           setProgress(user, pathId, 1);
         }
         if (type === "final" && badge?.passed) {
           setProgress(user, pathId, completionStep(pathData));
-          user.points += badge.bonusPoints;
+          await awardPoints(user, badge.bonusPoints, "badge_bonus", { pathId, badgeId: badge.id, percentage });
           user.badges ||= [];
           if (!user.badges.some((item) => item.id === badge.id)) {
             user.badges.push({ ...badge, earnedAt: nowIso() });
@@ -760,18 +767,43 @@ async function route(req, res) {
       return;
     }
 
+    if (segments[0] === "sync" && req.method === "POST") {
+      const user = await requireAuth(req, res);
+      if (!user) return;
+
+      const body = await parseBody(req);
+      const localPoints = Math.max(0, Number(body.points || 0));
+      const localProgress = body.progress || {};
+
+      const pointsToAdd = Math.max(0, localPoints - Number(user.points || 0));
+      if (pointsToAdd > 0) {
+        await awardPoints(user, pointsToAdd, "local_sync", { source: "localStorage" });
+      }
+
+      for (const [pathId, rawProgress] of Object.entries(localProgress)) {
+        const pathData = getPath(pathId);
+        if (pathData) {
+          setProgress(user, pathId, Math.max(0, Number(rawProgress || 0)));
+        }
+      }
+
+      updateActivity(user);
+      const savedUser = await saveUser(user);
+      send(res, 200, { user: safeUser(savedUser) });
+      return;
+    }
+
     if (segments[0] === "leaderboard" && req.method === "GET") {
       const user = await getAuthUser(req);
-      const entries = [
-        ...leaderboardSeeds.map((item) => ({ ...item, userId: null })),
-        ...(await getLeaderboardUsers()),
-      ]
+      const period = url.searchParams.get("period") === "allTime" ? "allTime" : "weekly";
+      const limit = Math.max(1, Math.min(100, Number(url.searchParams.get("limit") || 100)));
+      const entries = (await getLeaderboardUsers(period))
         .sort((a, b) => b.points - a.points)
         .map((item, index) => ({ rank: index + 1, ...item }));
 
       send(res, 200, {
-        period: url.searchParams.get("period") || "weekly",
-        top: entries.slice(0, Number(url.searchParams.get("limit") || 100)),
+        period,
+        top: entries.slice(0, limit),
         me: user ? entries.find((entry) => entry.userId === user.id) : null,
       });
       return;

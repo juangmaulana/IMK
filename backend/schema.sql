@@ -42,7 +42,18 @@ CREATE TABLE IF NOT EXISTS purchases (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS point_events (
+  id UUID PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  amount INTEGER NOT NULL,
+  source TEXT NOT NULL,
+  metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 CREATE INDEX IF NOT EXISTS users_points_idx ON users(points DESC);
 CREATE INDEX IF NOT EXISTS quiz_attempts_user_id_idx ON quiz_attempts(user_id);
 CREATE INDEX IF NOT EXISTS module_completions_user_id_idx ON module_completions(user_id);
 CREATE INDEX IF NOT EXISTS purchases_user_id_idx ON purchases(user_id);
+CREATE INDEX IF NOT EXISTS point_events_user_id_idx ON point_events(user_id);
+CREATE INDEX IF NOT EXISTS point_events_created_at_idx ON point_events(created_at);

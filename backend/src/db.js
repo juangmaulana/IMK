@@ -81,10 +81,21 @@ async function ensureSchema() {
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       );
 
+      CREATE TABLE IF NOT EXISTS point_events (
+        id UUID PRIMARY KEY,
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        amount INTEGER NOT NULL,
+        source TEXT NOT NULL,
+        metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+
       CREATE INDEX IF NOT EXISTS users_points_idx ON users(points DESC);
       CREATE INDEX IF NOT EXISTS quiz_attempts_user_id_idx ON quiz_attempts(user_id);
       CREATE INDEX IF NOT EXISTS module_completions_user_id_idx ON module_completions(user_id);
       CREATE INDEX IF NOT EXISTS purchases_user_id_idx ON purchases(user_id);
+      CREATE INDEX IF NOT EXISTS point_events_user_id_idx ON point_events(user_id);
+      CREATE INDEX IF NOT EXISTS point_events_created_at_idx ON point_events(created_at);
     `);
   })();
 
@@ -218,11 +229,40 @@ async function insertPurchase(purchase) {
   );
 }
 
-async function getLeaderboardUsers() {
+async function insertPointEvent(event) {
+  await query(
+    `INSERT INTO point_events (
+      id, user_id, amount, source, metadata, created_at
+    ) VALUES ($1, $2, $3, $4, $5::jsonb, $6)`,
+    [
+      event.id,
+      event.userId,
+      event.amount,
+      event.source,
+      JSON.stringify(event.metadata || {}),
+      event.createdAt,
+    ]
+  );
+}
+
+async function getLeaderboardUsers(period = "allTime") {
+  const weekly = period === "weekly";
   const result = await query(
-    `SELECT id, name, points, daily_streak
-      FROM users
-      ORDER BY points DESC, updated_at ASC`
+    weekly
+      ? `SELECT
+          users.id,
+          users.name,
+          users.daily_streak,
+          COALESCE(SUM(point_events.amount) FILTER (WHERE point_events.amount > 0), 0)::int AS points
+        FROM users
+        LEFT JOIN point_events
+          ON point_events.user_id = users.id
+          AND point_events.created_at >= NOW() - INTERVAL '7 days'
+        GROUP BY users.id, users.name, users.daily_streak, users.updated_at
+        ORDER BY points DESC, users.updated_at ASC`
+      : `SELECT id, name, points, daily_streak
+        FROM users
+        ORDER BY points DESC, updated_at ASC`
   );
 
   return result.rows.map((row) => ({
@@ -239,6 +279,7 @@ module.exports = {
   findUserById,
   getLeaderboardUsers,
   healthCheck,
+  insertPointEvent,
   insertModuleCompletion,
   insertPurchase,
   insertQuizAttempt,

@@ -7,6 +7,7 @@ export const metadata: Metadata = {
 
 type SearchParams = Record<string, string | string[] | undefined>;
 
-export default function ModulePage({ searchParams }: { searchParams: SearchParams }) {
-  return <ModuleClient searchParams={searchParams} />;
+export default async function ModulePage({ searchParams }: { searchParams: Promise<SearchParams> }) {
+  const params = await searchParams;
+  return <ModuleClient searchParams={params} />;
 }
