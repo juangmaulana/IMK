@@ -1,6 +1,10 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, Coins, Rocket, Shield, Snowflake, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { apiRequest, syncUserToLocalStorage, type ApiUser } from "@/lib/api";
 
 const boosts = [
   { icon: Snowflake, name: "Streak Freeze", count: 1, desc: "Melindungi streak jika melewatkan satu hari belajar." },
@@ -10,6 +14,25 @@ const boosts = [
 ];
 
 export default function InventoryPage() {
+  const [balance, setBalance] = useState(0);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setBalance(Number(localStorage.getItem("totalPoints") || 0));
+    }, 0);
+
+    apiRequest<{ user: ApiUser }>("/auth/me")
+      .then(({ user }) => {
+        syncUserToLocalStorage(user);
+        setBalance(user.points || 0);
+      })
+      .catch(() => {
+        // Tetap gunakan cache lokal jika API belum tersedia.
+      });
+
+    return () => window.clearTimeout(timer);
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#0f0f0f] px-6 py-6 text-[#f1eeee] md:px-8">
       <Button asChild variant="ghost" size="sm" className="-ml-2">
@@ -30,7 +53,7 @@ export default function InventoryPage() {
           <div className="flex items-center justify-end gap-2 text-[10px] uppercase tracking-wider text-muted-foreground">
             <Coins className="h-3 w-3" /> Saldo Tersedia
           </div>
-          <div className="mt-1 font-display text-2xl font-bold text-accent">3.450 FC</div>
+          <div className="mt-1 font-display text-2xl font-bold text-accent">{balance.toLocaleString("id-ID")} FC</div>
         </div>
       </section>
 
