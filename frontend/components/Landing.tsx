@@ -1,3 +1,6 @@
+"use client";
+
+import type { MouseEvent } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { SiteHeader } from "./SiteHeader";
@@ -33,6 +36,13 @@ const steps = [
 ];
 
 export function Landing({ signedIn = false }: { signedIn?: boolean }) {
+  const handleStartLearning = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (!signedIn) return;
+
+    event.preventDefault();
+    document.getElementById("learning-modules")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader signedIn={signedIn} />
@@ -50,7 +60,7 @@ export function Landing({ signedIn = false }: { signedIn?: boolean }) {
             Financial Literacy.
           </p>
           <Button asChild size="lg" className="mt-8 shadow-glow">
-            <Link href={signedIn ? "/home" : "/signup"}>Mulai Belajar</Link>
+            <Link href={signedIn ? "#learning-modules" : "/signup"} onClick={handleStartLearning}>Mulai Belajar</Link>
           </Button>
         </div>
       </section>
@@ -68,7 +78,7 @@ export function Landing({ signedIn = false }: { signedIn?: boolean }) {
       </section>
 
       {/* Modules */}
-      <section className="mx-auto max-w-6xl px-6 py-20">
+      <section id="learning-modules" className="mx-auto max-w-6xl scroll-mt-8 px-6 py-20">
         <h2 className="text-3xl font-bold">Pilih Modul Pembelajaran</h2>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
           Pahami taktik yang digunakan oleh predator finansial dan pelajari cara
