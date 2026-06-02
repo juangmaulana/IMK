@@ -23,8 +23,8 @@ export default function StorePage() {
 
     apiRequest<{ user: ApiUser }>("/auth/me")
       .then(({ user }) => {
-        syncUserToLocalStorage(user);
-        setBalance(user.points || 0);
+        const syncedUser = syncUserToLocalStorage(user);
+        setBalance(syncedUser.points);
       })
       .catch(() => {
         // Tetap gunakan cache lokal jika API belum tersedia.
@@ -43,7 +43,7 @@ export default function StorePage() {
       <div className="mt-4 flex flex-col items-start justify-between gap-6 rounded-xl border border-[#242020] bg-[#161313] p-8 lg:flex-row">
         <div>
           <h2 className="text-3xl font-bold">Persediaan Anda</h2>
-          <p className="mt-2 max-w-md text-sm text-muted-foreground">Bekali diri Anda dengan alat untuk melindungi progres dan mempercepat literasi finansial Anda.</p>
+          <p className="mt-2 max-w-md text-base leading-relaxed text-muted-foreground">Bekali diri Anda dengan alat untuk melindungi progres dan mempercepat literasi finansial Anda.</p>
         </div>
         <div className="rounded-lg border border-[#2d2725] bg-[#201b1a] p-4 text-right">
           <div className="flex items-center justify-end gap-2 text-[10px] uppercase tracking-wider text-muted-foreground">
@@ -60,7 +60,7 @@ export default function StorePage() {
               <it.icon className="h-4 w-4 text-primary" />
             </div>
             <div className="mt-4 font-bold">{it.name}</div>
-            <p className="mt-1 text-xs text-muted-foreground">{it.desc}</p>
+            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{it.desc}</p>
             <div className="mt-5 flex items-center justify-between rounded-md bg-[#201b1a] px-3 py-2 text-sm">
               <Button variant="ghost" size="sm">Beli</Button>
               <span className="flex items-center gap-1 text-muted-foreground"><Coins className="h-3 w-3" /> {it.price.toLocaleString()}</span>

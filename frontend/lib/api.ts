@@ -18,6 +18,7 @@ type ApiErrorPayload = {
 };
 
 export const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api").replace(/\/$/, "");
+export const FINLIT_POINTS_EVENT = "finlit-points";
 
 export function getAuthToken() {
   if (typeof window === "undefined") return "";
@@ -33,6 +34,22 @@ export function saveAuthSession(token: string, user: ApiUser) {
 export function clearAuthSession() {
   localStorage.removeItem("authToken");
   localStorage.removeItem("isLoggedIn");
+}
+
+export function getTotalPoints() {
+  if (typeof window === "undefined") return 0;
+  return Number(localStorage.getItem("totalPoints") || 0);
+}
+
+export function setTotalPoints(points: number) {
+  const nextPoints = Math.max(0, Number(points || 0));
+  localStorage.setItem("totalPoints", String(nextPoints));
+  window.dispatchEvent(new CustomEvent(FINLIT_POINTS_EVENT, { detail: { points: nextPoints } }));
+  return nextPoints;
+}
+
+export function addPoints(points: number) {
+  return setTotalPoints(getTotalPoints() + Number(points || 0));
 }
 
 export function getPathProgress(pathId: string) {
@@ -73,10 +90,10 @@ export function markModuleCompleted(pathId: string, moduleNumber: number) {
 
 export function syncUserToLocalStorage(user: ApiUser) {
   localStorage.setItem("profileName", user.name);
-  const localPoints = Number(localStorage.getItem("totalPoints") || 0);
-  localStorage.setItem("totalPoints", String(Math.max(localPoints, user.points || 0)));
+  const nextPoints = setTotalPoints(Math.max(getTotalPoints(), user.points || 0));
   const localStreak = Number(localStorage.getItem("dailyStreak") || 0);
-  localStorage.setItem("dailyStreak", String(Math.max(localStreak, user.dailyStreak || 0)));
+  const nextStreak = Math.max(localStreak, user.dailyStreak || 0);
+  localStorage.setItem("dailyStreak", String(nextStreak));
 
   const mergedProgress: Record<string, number> = {};
   for (const [pathId, progress] of Object.entries(user.progress || {})) {
@@ -86,6 +103,8 @@ export function syncUserToLocalStorage(user: ApiUser) {
 
   return {
     ...user,
+    points: nextPoints,
+    dailyStreak: nextStreak,
     progress: {
       ...user.progress,
       ...mergedProgress,

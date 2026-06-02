@@ -54,7 +54,7 @@ export function Landing({ signedIn = false }: { signedIn?: boolean }) {
             Lindungi Diri dari{" "}
             <span className="text-gradient-accent">Pinjol & Penipuan Digital</span>
           </h1>
-          <p className="mt-6 max-w-xl text-base text-muted-foreground">
+          <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
             Pelajari cara mengenali bahaya finansial melalui simulasi interaktif.
             Kumpulkan badge dan buktikan ketangguhan finansial Anda di Sanctuary of
             Financial Literacy.
@@ -71,7 +71,7 @@ export function Landing({ signedIn = false }: { signedIn?: boolean }) {
           {stats.map((s) => (
             <div key={s.l} className="text-center">
               <div className="font-display text-3xl font-bold text-accent">{s.v}</div>
-              <div className="mt-1 text-xs uppercase tracking-widest text-muted-foreground">{s.l}</div>
+              <div className="mt-1 text-sm uppercase tracking-widest text-muted-foreground">{s.l}</div>
             </div>
           ))}
         </div>
@@ -80,7 +80,7 @@ export function Landing({ signedIn = false }: { signedIn?: boolean }) {
       {/* Modules */}
       <section id="learning-modules" className="mx-auto max-w-6xl scroll-mt-8 px-6 py-20">
         <h2 className="text-3xl font-bold">Pilih Modul Pembelajaran</h2>
-        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+        <p className="mt-2 max-w-2xl text-base leading-relaxed text-muted-foreground">
           Pahami taktik yang digunakan oleh predator finansial dan pelajari cara
           membentengi diri dari risiko utang berbahaya.
         </p>
@@ -91,7 +91,7 @@ export function Landing({ signedIn = false }: { signedIn?: boolean }) {
                 <m.icon className="h-5 w-5 text-primary" />
               </div>
               <h3 className="mt-5 text-xl font-bold">{m.title}</h3>
-              <p className="mt-2 text-sm text-muted-foreground">{m.desc}</p>
+              <p className="mt-2 text-base leading-relaxed text-muted-foreground">{m.desc}</p>
               <Button asChild variant="secondary" size="sm" className="mt-6">
                 <Link href={signedIn ? m.to : "/login"}>Mulai Modul →</Link>
               </Button>
@@ -104,7 +104,7 @@ export function Landing({ signedIn = false }: { signedIn?: boolean }) {
       <section className="bg-card/40 py-20">
         <div className="mx-auto max-w-6xl px-6 text-center">
           <h2 className="text-3xl font-bold">Cara Bermain & Belajar</h2>
-          <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">
+          <p className="mx-auto mt-2 max-w-xl text-base leading-relaxed text-muted-foreground">
             Tingkatkan skor literasi finansial Anda melalui alur pembelajaran yang dirancang khusus.
           </p>
           <div className="mt-12 grid gap-10 sm:grid-cols-4">
@@ -117,7 +117,7 @@ export function Landing({ signedIn = false }: { signedIn?: boolean }) {
                   <div className="absolute left-[60%] right-0 top-6 hidden h-px border-t border-dashed border-border sm:block" style={{ width: "80%" }} />
                 )}
                 <div className="mt-4 font-bold">{t}</div>
-                <div className="mt-1 text-xs text-muted-foreground">{d}</div>
+                <div className="mt-1 text-sm leading-relaxed text-muted-foreground">{d}</div>
               </div>
             ))}
           </div>
@@ -127,7 +127,7 @@ export function Landing({ signedIn = false }: { signedIn?: boolean }) {
       {/* CTA */}
       <section className="py-24 text-center">
         <h2 className="text-3xl font-bold sm:text-4xl">Siap Melindungi Diri?</h2>
-        <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">
+        <p className="mx-auto mt-3 max-w-md text-base text-muted-foreground">
           Bergabunglah dengan Sanctuary of Financial Literacy hari ini. Gratis selamanya.
         </p>
         <Button asChild size="lg" className="mt-8 shadow-glow">

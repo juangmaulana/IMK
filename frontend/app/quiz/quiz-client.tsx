@@ -6,7 +6,7 @@ import { X, Coins, Check, Lock, Trophy, Award, Medal, RefreshCcw } from "lucide-
 import { Button } from "@/components/ui/button";
 import { pinjolPathData } from "@/data/pinjol-content";
 import { penipuanPathData } from "@/data/penipuan-content";
-import { apiRequest, getPathProgress, setPathProgress as savePathProgress, syncUserToLocalStorage, type ApiUser } from "@/lib/api";
+import { addPoints, apiRequest, FINLIT_POINTS_EVENT, getPathProgress, getTotalPoints, setPathProgress as savePathProgress, syncUserToLocalStorage, type ApiUser } from "@/lib/api";
 
 type SearchParams = Record<string, string | string[] | undefined>;
 type QuizQuestion = {
@@ -59,11 +59,6 @@ const getParam = (value: string | string[] | undefined, fallback: string) => {
   return value ?? fallback;
 };
 
-const addPoints = (amount: number) => {
-  const currentPoints = Number(localStorage.getItem("totalPoints") || 0);
-  localStorage.setItem("totalPoints", (currentPoints + amount).toString());
-};
-
 export default function QuizClient({ searchParams }: { searchParams: SearchParams }) {
   const isFinal = getParam(searchParams.type, "") === "final";
   const pathId = getParam(searchParams.pathId, "pinjol");
@@ -83,6 +78,21 @@ export default function QuizClient({ searchParams }: { searchParams: SearchParam
   const [showResult, setShowResult] = useState(false);
   const [pathProgress, setPathProgress] = useState<number | null>(null);
   const [answers, setAnswers] = useState<number[]>([]);
+  const [points, setPoints] = useState(0);
+
+  useEffect(() => {
+    const readPoints = () => setPoints(getTotalPoints());
+    const timer = window.setTimeout(readPoints, 0);
+
+    window.addEventListener(FINLIT_POINTS_EVENT, readPoints);
+    window.addEventListener("storage", readPoints);
+
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener(FINLIT_POINTS_EVENT, readPoints);
+      window.removeEventListener("storage", readPoints);
+    };
+  }, []);
 
   useEffect(() => {
     if (!isFinal) return;
@@ -215,7 +225,7 @@ export default function QuizClient({ searchParams }: { searchParams: SearchParam
     } else if (percentage >= 80) {
       badge = <Award className="mx-auto h-20 w-20 text-slate-300 drop-shadow-md" />;
       title = `${pathPrefix} Champion`;
-      reward = "Badge Silver + Poin Bonus 500";
+      reward = "Badge Silver + Poin Bonus 300";
       passed = true;
     } else if (percentage >= 70) {
       badge = <Medal className="mx-auto h-20 w-20 text-amber-700 drop-shadow-md" />;
@@ -259,14 +269,14 @@ export default function QuizClient({ searchParams }: { searchParams: SearchParam
             <div className="h-1 rounded-full bg-secondary">
               <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${((idx + 1) / total) * 100}%` }} />
             </div>
-            <div className="mt-1 text-center text-[10px] uppercase tracking-widest text-muted-foreground">Question {idx + 1} of {total}</div>
+            <div className="mt-1 text-center text-xs uppercase tracking-widest text-muted-foreground">Question {idx + 1} of {total}</div>
           </div>
-          <div className="flex items-center gap-1 rounded-md border border-border bg-card px-3 py-1.5 text-xs">
-            <Coins className="h-3 w-3 text-primary" /> 340
+          <div className="flex items-center gap-1 rounded-md border border-border bg-card px-3 py-1.5 text-sm font-semibold">
+            <Coins className="h-4 w-4 text-primary" /> {points.toLocaleString("id-ID")}
           </div>
         </div>
 
-        <div className="mt-10 text-center text-[11px] uppercase tracking-widest text-muted-foreground">◇ {current.tag}</div>
+        <div className="mt-10 text-center text-xs uppercase tracking-widest text-muted-foreground">◇ {current.tag}</div>
         <h1 className="mt-3 text-center text-2xl font-bold leading-tight sm:text-3xl">{current.prompt}</h1>
 
         <div className="mt-8 space-y-3">
@@ -282,7 +292,7 @@ export default function QuizClient({ searchParams }: { searchParams: SearchParam
               <button
                 key={optionIndex}
                 onClick={() => !submitted && setPicked(optionIndex)}
-                className={`flex w-full items-start gap-3 rounded-lg border p-4 text-left text-sm transition ${cls}`}
+                className={`flex w-full items-start gap-3 rounded-lg border p-4 text-left text-base leading-relaxed transition ${cls}`}
               >
                 <span
                   className={`flex h-7 w-7 flex-none items-center justify-center rounded text-xs font-bold ${
@@ -309,14 +319,14 @@ export default function QuizClient({ searchParams }: { searchParams: SearchParam
                 {isCorrect ? <Check className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
               </div>
               <div>
-                <div className="text-sm font-bold">{isCorrect ? "FINLIT Insight!" : "Incorrect Answer"}</div>
-                <div className="text-xs text-muted-foreground">{current.explanation}</div>
+                <div className="text-base font-bold">{isCorrect ? "FINLIT Insight!" : "Incorrect Answer"}</div>
+                <div className="text-sm leading-relaxed text-muted-foreground">{current.explanation}</div>
               </div>
             </div>
             <div className="flex items-center gap-3">
               {isCorrect && (
                 <span className="flex items-center gap-1 rounded-md bg-background/40 px-3 py-1.5 text-xs font-medium">
-                  +10 <Coins className="h-3 w-3 text-primary" />
+                  +{isFinal ? 20 : 10} <Coins className="h-3 w-3 text-primary" />
                 </span>
               )}
               {!isCorrect && <Button variant="secondary" size="sm">◇ Explain</Button>}

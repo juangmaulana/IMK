@@ -33,9 +33,9 @@ export default function ProfilePage() {
 
     apiRequest<{ user: ApiUser }>("/auth/me")
       .then(({ user }) => {
-        syncUserToLocalStorage(user);
-        setStreak(user.dailyStreak || 0);
-        setPoints(user.points || 0);
+        const syncedUser = syncUserToLocalStorage(user);
+        setStreak(syncedUser.dailyStreak);
+        setPoints(syncedUser.points);
         setDisplayName(user.name);
         setDraftName(user.name);
       })
@@ -113,7 +113,7 @@ export default function ProfilePage() {
               </Button>
             </div>
           )}
-          <p className="mt-2 max-w-md text-sm text-muted-foreground">Bekali diri Anda dengan alat untuk melindungi progres dan mempercepat literasi finansial Anda.</p>
+          <p className="mt-2 max-w-md text-base leading-relaxed text-muted-foreground">Bekali diri Anda dengan alat untuk melindungi progres dan mempercepat literasi finansial Anda.</p>
         </div>
         <div className="rounded-lg border border-[#2d2725] bg-[#201b1a] p-4 text-xl font-bold flex gap-6">
           <div className="flex items-center gap-2">
@@ -134,7 +134,7 @@ export default function ProfilePage() {
               <c.icon className="h-4 w-4 text-primary" />
             </div>
             <div className="mt-4 font-bold">{c.name}</div>
-            <p className="mt-1 text-xs text-muted-foreground">{c.desc}</p>
+            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{c.desc}</p>
             <Button asChild variant="secondary" size="sm" className="mt-5">
               <Link href={c.href}>{c.cta}</Link>
             </Button>

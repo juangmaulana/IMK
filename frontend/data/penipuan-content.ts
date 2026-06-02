@@ -66,6 +66,25 @@ export const penipuanPathData = {
         "Peserta mampu mengenali jenis-jenis scam digital yang umum terjadi",
         "Memahami cara kerjanya"
       ],
+      content: `
+### Apa itu Scam Digital?
+Scam digital adalah upaya penipuan melalui media elektronik untuk mencuri uang, akun, atau data pribadi korban. Pelaku sering menyamar sebagai pihak terpercaya seperti bank, marketplace, perusahaan, atau bahkan anggota keluarga.
+
+### Jenis Scam yang Sering Ditemui
+- **Phishing**: Pesan, email, atau website palsu yang meminta korban membuka link dan memasukkan data sensitif.
+- **Vishing**: Telepon palsu yang mengatasnamakan pihak resmi untuk meminta OTP, PIN, atau informasi rekening.
+- **Smishing**: Phishing melalui SMS atau aplikasi pesan instan.
+- **Social engineering**: Manipulasi psikologis agar korban panik, takut, atau tergesa-gesa mengambil keputusan.
+
+### Data yang Tidak Boleh Dibagikan
+Jangan pernah membagikan OTP, PIN, password, kode CVV kartu, atau tautan reset akun kepada siapa pun. Petugas resmi tidak akan meminta data rahasia tersebut melalui chat atau telepon.
+
+### Langkah Aman Saat Menerima Pesan Mencurigakan
+1. Jangan klik link dan jangan unduh file dari pengirim tidak dikenal.
+2. Jangan mengikuti instruksi untuk mentransfer uang atau membagikan kode rahasia.
+3. Tutup percakapan, lalu hubungi institusi terkait melalui kanal resminya.
+4. Simpan screenshot pesan jika perlu dilaporkan.
+      `,
       miniQuiz: [
         {
           id: "MQ1-1",
@@ -111,6 +130,24 @@ export const penipuanPathData = {
       objectives: [
         "Peserta mampu mengenali ciri-ciri investasi ilegal digital dan membedakannya dari investasi legal"
       ],
+      content: `
+### Apa itu Investasi Bodong Digital?
+Investasi bodong digital adalah penawaran investasi tanpa dasar usaha yang jelas atau tanpa izin yang sesuai. Pelaku memanfaatkan media sosial, grup chat, aplikasi, dan website yang tampak profesional untuk meyakinkan calon korban.
+
+### Gunakan Prinsip 2L: Legal dan Logis
+- **Legal**: Periksa apakah pihak yang menawarkan produk memiliki izin dari lembaga berwenang sesuai jenis produknya.
+- **Logis**: Nilai apakah keuntungan yang dijanjikan masuk akal. Investasi selalu memiliki risiko dan tidak ada keuntungan besar yang pasti.
+
+### Tanda Bahaya Investasi Bodong
+- Menjanjikan profit tinggi, tetap, dan tanpa risiko.
+- Meminta transfer cepat karena penawaran disebut terbatas.
+- Bonus utama berasal dari merekrut anggota baru.
+- Penarikan dana dipersulit atau hanya bisa dilakukan setelah mengajak orang lain.
+- Tidak transparan tentang cara kerja bisnis dan penggunaan dana.
+
+### Sebelum Menyetorkan Uang
+Jangan hanya percaya pada testimoni, tampilan aplikasi, atau bukti transfer dari anggota lain. Periksa legalitas, pahami produknya, dan hindari keputusan saat sedang ditekan untuk segera bergabung.
+      `,
       miniQuiz: [
         {
           id: "MQ2-1",
@@ -156,6 +193,26 @@ export const penipuanPathData = {
       objectives: [
         "Peserta mampu mengenali modus penipuan di platform belanja online dan e-wallet serta cara menghindarinya"
       ],
+      content: `
+### Penipuan Belanja Daring
+Pelaku sering menawarkan barang populer dengan harga jauh di bawah pasaran melalui media sosial atau toko tidak resmi. Setelah korban mentransfer uang, barang tidak dikirim atau korban diarahkan ke link palsu untuk mencuri akun marketplace.
+
+### Tanda Bahaya Saat Berbelanja
+- Harga terlalu murah dibandingkan harga pasar.
+- Penjual hanya menerima transfer ke rekening pribadi.
+- Penjual menolak transaksi melalui marketplace resmi.
+- Akun baru dibuat, tidak memiliki ulasan wajar, atau menggunakan foto produk hasil salinan.
+- Penjual mendesak korban segera membayar karena stok disebut hampir habis.
+
+### Modus yang Menargetkan E-Wallet
+Waspadai chat yang meminta OTP, link hadiah palsu, akun CS palsu, dan modus salah transfer. Bukti transfer berupa gambar belum membuktikan bahwa saldo benar-benar masuk.
+
+### Cara Bertransaksi Lebih Aman
+1. Gunakan marketplace dengan sistem perlindungan pembeli atau escrow.
+2. Periksa transaksi langsung dari aplikasi, bukan dari screenshot pengirim.
+3. Jangan membagikan OTP atau login melalui link dari chat.
+4. Untuk kasus salah transfer, hubungi CS resmi agar pengembalian dana tercatat.
+      `,
       miniQuiz: [
         {
           id: "MQ3-1",
@@ -201,6 +258,25 @@ export const penipuanPathData = {
       objectives: [
         "Peserta mampu mengenali ancaman deepfake dan konten AI palsu dalam konteks penipuan keuangan"
       ],
+      content: `
+### Apa itu Deepfake?
+Deepfake adalah konten video, gambar, atau suara yang dimanipulasi menggunakan AI agar tampak seperti dibuat oleh orang tertentu. Dalam penipuan keuangan, deepfake dapat digunakan untuk meniru tokoh publik, petugas perusahaan, atasan, atau anggota keluarga.
+
+### Bentuk Penipuan Berbasis AI
+- Video tokoh publik yang seolah-olah mempromosikan investasi tertentu.
+- Telepon dengan suara kerabat yang meminta transfer darurat.
+- Rekaman suara atasan yang meminta pembayaran mendesak.
+- Foto atau video palsu untuk membangun identitas penipu.
+
+### Tanda yang Perlu Diperhatikan
+- Gerakan bibir dan suara tidak sinkron.
+- Kedipan, tepi wajah, atau pencahayaan tampak tidak alami.
+- Pesan meminta transfer segera dan melarang korban melakukan verifikasi.
+- Konten berasal dari akun tidak resmi atau tidak konsisten dengan pernyataan resmi sebelumnya.
+
+### Cara Memverifikasi
+Hubungi orang atau institusi terkait melalui nomor yang sudah tersimpan atau kanal resmi. Untuk permintaan darurat dari keluarga, ajukan pertanyaan personal yang hanya diketahui orang tersebut sebelum mengambil tindakan.
+      `,
       miniQuiz: [
         {
           id: "MQ4-1",
@@ -246,6 +322,25 @@ export const penipuanPathData = {
       objectives: [
         "Peserta mengetahui langkah-langkah konkret untuk melaporkan penipuan digital dan melindungi diri dari ancaman serupa"
       ],
+      content: `
+### Jika Kamu Menjadi Korban
+Tindakan cepat dapat membantu membatasi kerugian dan menjaga bukti. Jangan menghapus percakapan atau buru-buru mengikuti instruksi lanjutan dari pelaku.
+
+### Langkah Penanganan Awal
+1. Hentikan komunikasi dengan pelaku dan jangan melakukan transfer tambahan.
+2. Simpan screenshot chat, nomor telepon, alamat website, bukti transaksi, dan kronologi kejadian.
+3. Hubungi bank atau penyedia e-wallet melalui kanal resmi untuk mengamankan akun dan menanyakan prosedur penanganan transaksi.
+4. Ganti password akun terdampak dan aktifkan autentikasi dua faktor (2FA).
+
+### Kanal Pelaporan
+- **OJK dan APPK**: Untuk pengaduan terkait produk atau aktivitas keuangan ilegal.
+- **Satgas PASTI**: Untuk informasi mengenai aktivitas keuangan ilegal seperti investasi bodong dan pinjol ilegal.
+- **Kepolisian**: Untuk dugaan tindak pidana seperti penipuan, pemerasan, atau ancaman.
+- **Platform terkait**: Laporkan akun, toko, iklan, atau tautan palsu agar dapat ditindaklanjuti.
+
+### Kebiasaan Perlindungan Diri
+Gunakan password berbeda untuk setiap akun penting, aktifkan 2FA, periksa alamat website sebelum login, dan selalu verifikasi permintaan uang melalui kanal komunikasi kedua.
+      `,
       miniQuiz: [
         {
           id: "MQ5-1",

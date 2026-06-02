@@ -59,14 +59,14 @@ export function LearningPath({
   return (
     <div className="min-h-screen bg-[#0f0f0f] px-5 py-6 pb-16 text-[#f1eeee] md:px-8">
       <div className="grid items-start gap-4 md:grid-cols-[1fr_auto_1fr]">
-        <div />
+        <div className="hidden md:block" />
         <div className="text-center">
-          <div className="text-sm font-bold text-[#ffb0a8]">{title}</div>
+          <div className="text-base font-bold text-[#ffb0a8]">{title}</div>
           <div className="mt-2 flex items-center justify-center gap-3">
-            <div className="h-1 w-56 overflow-hidden rounded-full bg-[#363333] md:w-64">
+            <div className="h-1.5 w-full max-w-56 overflow-hidden rounded-full bg-[#363333] md:w-64">
               <div className="h-full rounded-full bg-[#a90606] transition-all duration-500" style={{ width: `${progressPercent}%` }} />
             </div>
-            <span className="text-[11px] text-[#d2c7c4]">{Math.round(progressPercent)}%</span>
+            <span className="text-sm text-[#d2c7c4]">{Math.round(progressPercent)}%</span>
           </div>
         </div>
         <div className="justify-self-end">
@@ -75,8 +75,8 @@ export function LearningPath({
       </div>
 
       <div className="mx-auto mt-16 max-w-2xl text-center">
-        <h1 className="text-3xl font-bold text-[#e8e4e1]">Your Journey to Financial Security</h1>
-        <p className="mx-auto mt-4 max-w-lg text-sm leading-6 text-[#c9bdb8]">
+        <h1 className="text-3xl font-bold text-[#e8e4e1] sm:text-4xl">Your Journey to Financial Security</h1>
+        <p className="mx-auto mt-4 max-w-lg text-base leading-7 text-[#c9bdb8]">
           Navigate the risks of predatory lending and secure your financial sanctuary.
           Complete each module to unlock the final badge.
         </p>
@@ -157,9 +157,9 @@ function StartCard({ pathId, completed }: { pathId: string; completed: boolean }
           {completed ? <Check className="h-5 w-5 text-[#c6f2bc]" /> : <Play className="h-5 w-5 text-white" fill="currentColor" />}
         </div>
         <div className="min-w-0">
-          <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#ffb0a8]">{completed ? "Completed" : "Start Here"}</div>
+          <div className="text-xs font-bold uppercase tracking-[0.18em] text-[#ffb0a8]">{completed ? "Completed" : "Start Here"}</div>
           <div className="mt-1 text-lg font-bold text-[#f1eeee]">Pre-Quiz Diagnostik</div>
-          <p className="mt-2 text-xs leading-5 text-[#c9bdb8]">Uji pengetahuan mengenai pinjaman online sebelum memulai pembelajaran</p>
+          <p className="mt-2 text-sm leading-6 text-[#c9bdb8]">Uji pengetahuan mengenai pinjaman online sebelum memulai pembelajaran</p>
           <Button asChild size="sm" className="mt-5 bg-[#9c0000] text-white hover:bg-[#bd1414]">
             <Link href={`/quiz?pathId=${pathId}&type=pre`}>{completed ? "Ulangi Pre-Quiz" : "Mulai Pre-Quiz →"}</Link>
           </Button>
@@ -205,8 +205,8 @@ function ModuleCard({
             )}
           </div>
           <div className="min-w-0">
-            <div className={`text-[10px] uppercase tracking-wider ${isUnlocked ? "text-[#ffb0a8]" : "text-[#8c8380]"}`}>{status}</div>
-            <div className={`mt-1 font-bold ${isUnlocked ? "text-[#eee8e5]" : "text-[#88817e]"}`}>
+            <div className={`text-xs uppercase tracking-wider ${isUnlocked ? "text-[#ffb0a8]" : "text-[#8c8380]"}`}>{status}</div>
+            <div className={`mt-1 text-base font-bold ${isUnlocked ? "text-[#eee8e5]" : "text-[#88817e]"}`}>
               Modul {index + 1}: {label}
             </div>
           </div>
@@ -236,7 +236,7 @@ function FinalCard({ unlocked, completed, pathId }: { unlocked: boolean; complet
         </div>
       </div>
       <div className={`mt-6 text-2xl font-bold ${unlocked ? "text-[#f1eeee]" : "text-[#77706d]"}`}>Quiz Akhir & Badge</div>
-      <div className="mt-2 text-sm text-[#77706d]">{unlocked ? "Terbuka! Uji pemahamanmu." : "Complete all modules to unlock"}</div>
+      <div className="mt-2 text-base text-[#a39a97]">{unlocked ? "Terbuka! Uji pemahamanmu." : "Complete all modules to unlock"}</div>
       {unlocked && (
         <Button asChild size="sm" className="mt-5 bg-[#a90606] text-white hover:bg-[#bd1414]">
           <Link href={`/quiz?pathId=${pathId}&type=final`}>{completed ? "Ulangi Quiz" : "Mulai Quiz"}</Link>

@@ -7,7 +7,7 @@ import { ChevronLeft, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { pinjolPathData } from "@/data/pinjol-content";
 import { penipuanPathData } from "@/data/penipuan-content";
-import { apiRequest, getEffectivePathProgress, getPathProgress, markModuleCompleted, syncUserToLocalStorage, type ApiUser } from "@/lib/api";
+import { addPoints, apiRequest, getEffectivePathProgress, getPathProgress, markModuleCompleted, syncUserToLocalStorage, type ApiUser } from "@/lib/api";
 
 type SearchParams = Record<string, string | string[] | undefined>;
 type MiniQuizQuestion = {
@@ -149,6 +149,9 @@ export default function ModuleClient({ searchParams }: { searchParams: SearchPar
     const currentProgress = getPathProgress(pathId);
     const savedProgress = markModuleCompleted(pathId, moduleId);
     setAccessProgress(Math.max(accessProgress || 0, savedProgress));
+    if (!moduleAlreadyCompleted) {
+      addPoints(50);
+    }
 
     void (async () => {
       try {
@@ -177,14 +180,14 @@ export default function ModuleClient({ searchParams }: { searchParams: SearchPar
           <ChevronLeft className="h-6 w-6" />
         </Link>
         <div className="text-sm font-bold uppercase tracking-widest text-white/80">MODUL {moduleId}</div>
-        <h1 className="mt-2 text-2xl font-bold leading-tight">{moduleData.title}</h1>
-        <div className="mt-2 text-sm italic text-white/80">Durasi: {moduleData.duration}</div>
+        <h1 className="mt-2 text-2xl font-bold leading-tight sm:text-3xl">{moduleData.title}</h1>
+        <div className="mt-2 text-base italic text-white/80">Durasi: {moduleData.duration}</div>
       </div>
 
       <div className="mx-auto max-w-4xl space-y-8 px-6 py-8">
         <section className="rounded-2xl border border-border bg-card p-6 shadow-card">
           <h2 className="text-xl font-bold text-primary">Tujuan Pembelajaran</h2>
-          <ul className="mt-4 list-inside list-disc space-y-2 text-sm text-muted-foreground">
+          <ul className="mt-4 list-inside list-disc space-y-2 text-base leading-relaxed text-muted-foreground">
             {(Array.isArray(moduleData.objectives) ? moduleData.objectives : []).map((objective: string, index: number) => (
               <li key={index}>{objective}</li>
             ))}
@@ -194,7 +197,7 @@ export default function ModuleClient({ searchParams }: { searchParams: SearchPar
         {moduleData.content && (
           <section className="rounded-2xl border border-border bg-card p-6 shadow-card">
             <h2 className="text-xl font-bold text-primary">Materi</h2>
-            <div className="mt-4 space-y-4 text-sm leading-7 text-muted-foreground">
+            <div className="mt-4 space-y-4 text-base leading-8 text-muted-foreground">
               <ReactMarkdown>{moduleData.content}</ReactMarkdown>
             </div>
             {hasMiniQuiz && (
@@ -208,7 +211,7 @@ export default function ModuleClient({ searchParams }: { searchParams: SearchPar
         {quizItems.length > 0 && (
           <section ref={miniQuizRef} className="scroll-mt-8 rounded-2xl border border-border bg-card p-6 shadow-card">
             <h2 className="text-xl font-bold text-primary">Mini Quiz</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <p className="mt-2 text-base text-muted-foreground">
               Jawab semua pertanyaan mini quiz untuk menyelesaikan modul ini dan membuka langkah berikutnya.
             </p>
             <div className="mt-4 space-y-4">
@@ -234,7 +237,7 @@ export default function ModuleClient({ searchParams }: { searchParams: SearchPar
                             type="button"
                             disabled={miniQuizSubmitted}
                             onClick={() => setMiniQuizAnswers((answers) => ({ ...answers, [index]: optionIndex }))}
-                            className={`flex w-full items-start gap-3 rounded-lg border p-3 text-left text-sm transition disabled:cursor-default ${stateClass}`}
+                            className={`flex w-full items-start gap-3 rounded-lg border p-3 text-left text-base leading-relaxed transition disabled:cursor-default ${stateClass}`}
                           >
                             <span className="flex h-6 w-6 flex-none items-center justify-center rounded bg-secondary text-xs font-bold text-muted-foreground">
                               {String.fromCharCode(65 + optionIndex)}
@@ -245,7 +248,7 @@ export default function ModuleClient({ searchParams }: { searchParams: SearchPar
                       })}
                     </div>
                     {miniQuizSubmitted && question.explanation && (
-                      <p className="mt-3 text-xs text-muted-foreground">Jawaban: {question.explanation}</p>
+                      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">Jawaban: {question.explanation}</p>
                     )}
                   </div>
                 );
@@ -253,14 +256,14 @@ export default function ModuleClient({ searchParams }: { searchParams: SearchPar
             </div>
             <div className="mt-5 flex flex-col items-start justify-between gap-3 rounded-xl border border-border bg-background/40 p-4 sm:flex-row sm:items-center">
               <div>
-                <div className="text-sm font-semibold">
+                <div className="text-base font-semibold">
                   {miniQuizSubmitted
                     ? `Mini quiz selesai: ${miniQuizScore}/${quizItems.length} benar`
                     : moduleAlreadyCompleted
                       ? "Modul ini sudah selesai"
                       : "Selesaikan mini quiz terlebih dahulu"}
                 </div>
-                <p className="mt-1 text-xs text-muted-foreground">
+                <p className="mt-1 text-sm text-muted-foreground">
                   {miniQuizSubmitted
                     ? "Sekarang kamu bisa menandai modul ini selesai."
                     : moduleAlreadyCompleted
@@ -290,10 +293,10 @@ export default function ModuleClient({ searchParams }: { searchParams: SearchPar
         </div>
 
         <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
-          <div className="flex items-center gap-2 text-sm font-semibold text-primary">
+          <div className="flex items-center gap-2 text-base font-semibold text-primary">
             <ShieldCheck className="h-4 w-4" /> Status Progress
           </div>
-          <p className="mt-2 text-sm text-muted-foreground">Selesaikan modul ini untuk membuka langkah berikutnya di learning path.</p>
+          <p className="mt-2 text-base text-muted-foreground">Selesaikan modul ini untuk membuka langkah berikutnya di learning path.</p>
         </div>
       </div>
     </div>

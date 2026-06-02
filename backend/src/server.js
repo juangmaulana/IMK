@@ -620,17 +620,20 @@ async function route(req, res) {
       }
 
       const progress = setProgress(user, pathId, moduleNumber + 1);
-      await awardPoints(user, 50, "module_complete", { pathId, moduleNumber });
+      if (!moduleAlreadyCompleted) {
+        await awardPoints(user, 50, "module_complete", { pathId, moduleNumber });
+      }
       updateActivity(user);
-      const completion = {
-        id: crypto.randomUUID(),
-        userId: user.id,
-        pathId,
-        moduleNumber,
-        completedAt: nowIso(),
-      };
       const savedUser = await saveUser(user);
-      await insertModuleCompletion(completion);
+      if (!moduleAlreadyCompleted) {
+        await insertModuleCompletion({
+          id: crypto.randomUUID(),
+          userId: user.id,
+          pathId,
+          moduleNumber,
+          completedAt: nowIso(),
+        });
+      }
 
       send(res, 200, { progress, points: savedUser.points, user: safeUser(savedUser) });
       return;
@@ -691,9 +694,9 @@ async function route(req, res) {
         }
         if (type === "final" && badge?.passed) {
           setProgress(user, pathId, completionStep(pathData));
-          await awardPoints(user, badge.bonusPoints, "badge_bonus", { pathId, badgeId: badge.id, percentage });
           user.badges ||= [];
           if (!user.badges.some((item) => item.id === badge.id)) {
+            await awardPoints(user, badge.bonusPoints, "badge_bonus", { pathId, badgeId: badge.id, percentage });
             user.badges.push({ ...badge, earnedAt: nowIso() });
           }
         }

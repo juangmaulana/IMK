@@ -23,8 +23,8 @@ export default function InventoryPage() {
 
     apiRequest<{ user: ApiUser }>("/auth/me")
       .then(({ user }) => {
-        syncUserToLocalStorage(user);
-        setBalance(user.points || 0);
+        const syncedUser = syncUserToLocalStorage(user);
+        setBalance(syncedUser.points);
       })
       .catch(() => {
         // Tetap gunakan cache lokal jika API belum tersedia.
@@ -45,7 +45,7 @@ export default function InventoryPage() {
             <Rocket className="h-5 w-5 text-primary" />
           </div>
           <h1 className="mt-5 text-3xl font-bold">Inventaris Peningkatan</h1>
-          <p className="mt-2 max-w-xl text-sm text-muted-foreground">
+          <p className="mt-2 max-w-xl text-base leading-relaxed text-muted-foreground">
             Simpan dan gunakan boost seperti power-up belajar. Cocok untuk menjaga momentum saat mengejar badge.
           </p>
         </div>
@@ -67,7 +67,7 @@ export default function InventoryPage() {
               <span className="rounded-md border border-[#2d2725] bg-[#201b1a] px-2 py-1 text-xs font-bold">x{boost.count}</span>
             </div>
             <h2 className="mt-5 font-bold">{boost.name}</h2>
-            <p className="mt-1 min-h-10 text-xs text-muted-foreground">{boost.desc}</p>
+            <p className="mt-1 min-h-10 text-sm leading-relaxed text-muted-foreground">{boost.desc}</p>
             <Button className="mt-5 w-full" size="sm" disabled={boost.count === 0}>
               {boost.count > 0 ? "Gunakan" : "Tidak Tersedia"}
             </Button>
