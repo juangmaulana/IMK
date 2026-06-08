@@ -6,15 +6,16 @@ import { ChevronLeft, Coins, Rocket, Shield, Snowflake, Zap } from "lucide-react
 import { Button } from "@/components/ui/button";
 import { apiRequest, syncUserToLocalStorage, type ApiUser } from "@/lib/api";
 
-const boosts = [
-  { icon: Snowflake, name: "Streak Freeze", count: 1, desc: "Melindungi streak jika melewatkan satu hari belajar." },
-  { icon: Shield, name: "Perisai Poin", count: 0, desc: "Menahan penurunan peringkat selama 48 jam." },
-  { icon: Rocket, name: "2x FinPoin", count: 2, desc: "Gandakan FinPoin untuk 3 modul berikutnya." },
-  { icon: Zap, name: "Quiz Sprint", count: 0, desc: "Bonus kecil saat menyelesaikan quiz tanpa jeda panjang." },
+const BOOST_DEFS = [
+  { id: "streak-freeze", icon: Snowflake, name: "Streak Freeze", desc: "Melindungi streak jika melewatkan satu hari belajar." },
+  { id: "point-shield", icon: Shield, name: "Perisai Poin", desc: "Menahan penurunan peringkat selama 48 jam." },
+  { id: "point-booster", icon: Rocket, name: "2x FinPoin", desc: "Gandakan FinPoin untuk 3 modul berikutnya." },
+  { id: "badge-slot", icon: Zap, name: "Slot Lencana", desc: "Buka slot tambahan untuk memamerkan pencapaian." },
 ];
 
 export default function InventoryPage() {
   const [balance, setBalance] = useState(0);
+  const [inventory, setInventory] = useState<Record<string, number>>({});
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -25,6 +26,7 @@ export default function InventoryPage() {
       .then(({ user }) => {
         const syncedUser = syncUserToLocalStorage(user);
         setBalance(syncedUser.points);
+        setInventory(user.inventory || {});
       })
       .catch(() => {
         // Tetap gunakan cache lokal jika API belum tersedia.
@@ -58,21 +60,24 @@ export default function InventoryPage() {
       </section>
 
       <div className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-        {boosts.map((boost) => (
-          <div key={boost.name} className="rounded-xl border border-[#242020] bg-[#161313] p-5">
-            <div className="flex items-center justify-between">
-              <div className="inline-flex h-11 w-11 items-center justify-center rounded-md bg-[#201b1a]">
-                <boost.icon className="h-5 w-5 text-primary" />
+        {BOOST_DEFS.map((boost) => {
+          const count = Number(inventory[boost.id] || 0);
+          return (
+            <div key={boost.id} className="rounded-xl border border-[#242020] bg-[#161313] p-5">
+              <div className="flex items-center justify-between">
+                <div className="inline-flex h-11 w-11 items-center justify-center rounded-md bg-[#201b1a]">
+                  <boost.icon className="h-5 w-5 text-primary" />
+                </div>
+                <span className="rounded-md border border-[#2d2725] bg-[#201b1a] px-2 py-1 text-xs font-bold">x{count}</span>
               </div>
-              <span className="rounded-md border border-[#2d2725] bg-[#201b1a] px-2 py-1 text-xs font-bold">x{boost.count}</span>
+              <h2 className="mt-5 font-bold">{boost.name}</h2>
+              <p className="mt-1 min-h-10 text-sm leading-relaxed text-muted-foreground">{boost.desc}</p>
+              <Button className="mt-5 w-full" size="sm" disabled={count === 0}>
+                {count > 0 ? "Gunakan" : "Tidak Tersedia"}
+              </Button>
             </div>
-            <h2 className="mt-5 font-bold">{boost.name}</h2>
-            <p className="mt-1 min-h-10 text-sm leading-relaxed text-muted-foreground">{boost.desc}</p>
-            <Button className="mt-5 w-full" size="sm" disabled={boost.count === 0}>
-              {boost.count > 0 ? "Gunakan" : "Tidak Tersedia"}
-            </Button>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

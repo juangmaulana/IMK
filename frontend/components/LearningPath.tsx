@@ -12,10 +12,12 @@ export type Module = { label: string; locked?: boolean };
 
 export function LearningPath({
   title,
+  description,
   modules,
   pathId = "pinjol",
 }: {
   title: string;
+  description: string;
   modules: Module[];
   pathId?: string;
 }) {
@@ -77,8 +79,7 @@ export function LearningPath({
       <div className="mx-auto mt-16 max-w-2xl text-center">
         <h1 className="text-3xl font-bold text-[#e8e4e1] sm:text-4xl">Your Journey to Financial Security</h1>
         <p className="mx-auto mt-4 max-w-lg text-base leading-7 text-[#c9bdb8]">
-          Navigate the risks of predatory lending and secure your financial sanctuary.
-          Complete each module to unlock the final badge.
+          {description}
         </p>
       </div>
 

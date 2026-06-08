@@ -32,8 +32,21 @@ export function saveAuthSession(token: string, user: ApiUser) {
 }
 
 export function clearAuthSession() {
-  localStorage.removeItem("authToken");
-  localStorage.removeItem("isLoggedIn");
+  const keys = [
+    "authToken",
+    "isLoggedIn",
+    "totalPoints",
+    "dailyStreak",
+    "profileName",
+    "lastLoginDate",
+    "pinjolProgress",
+    "penipuanProgress",
+    "pinjolCompletedModules",
+    "penipuanCompletedModules",
+  ];
+  for (const key of keys) {
+    localStorage.removeItem(key);
+  }
 }
 
 export function getTotalPoints() {

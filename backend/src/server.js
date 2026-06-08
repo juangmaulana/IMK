@@ -775,18 +775,13 @@ async function route(req, res) {
       if (!user) return;
 
       const body = await parseBody(req);
-      const localPoints = Math.max(0, Number(body.points || 0));
       const localProgress = body.progress || {};
-
-      const pointsToAdd = Math.max(0, localPoints - Number(user.points || 0));
-      if (pointsToAdd > 0) {
-        await awardPoints(user, pointsToAdd, "local_sync", { source: "localStorage" });
-      }
 
       for (const [pathId, rawProgress] of Object.entries(localProgress)) {
         const pathData = getPath(pathId);
         if (pathData) {
-          setProgress(user, pathId, Math.max(0, Number(rawProgress || 0)));
+          const capped = Math.min(completionStep(pathData), Math.max(0, Number(rawProgress || 0)));
+          setProgress(user, pathId, capped);
         }
       }
 

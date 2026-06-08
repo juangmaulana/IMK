@@ -42,7 +42,7 @@ const resolveCorrectIndex = (question: QuizQuestion) => {
   const directMatch = options.findIndex((option: string) => normalize(option) === answer);
   if (directMatch >= 0) return directMatch;
 
-  return 0;
+  return -1;
 };
 
 const mapQuestions = (quizData: QuizData | undefined, tag: string) =>
@@ -329,7 +329,6 @@ export default function QuizClient({ searchParams }: { searchParams: SearchParam
                   +{isFinal ? 20 : 10} <Coins className="h-3 w-3 text-primary" />
                 </span>
               )}
-              {!isCorrect && <Button variant="secondary" size="sm">◇ Explain</Button>}
               <Button size="sm" onClick={next}>Continue →</Button>
             </div>
           </div>

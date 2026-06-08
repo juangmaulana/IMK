@@ -48,7 +48,7 @@ const resolveCorrectIndex = (question: MiniQuizQuestion) => {
 
   const options = Array.isArray(question.options) ? question.options : [];
   const match = options.findIndex((option) => normalizeAnswer(option) === answer);
-  return match >= 0 ? match : 0;
+  return match;
 };
 
 export default function ModuleClient({ searchParams }: { searchParams: SearchParams }) {
