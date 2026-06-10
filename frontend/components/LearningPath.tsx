@@ -154,11 +154,11 @@ function StartCard({ pathId, completed }: { pathId: string; completed: boolean }
       }`}
     >
       <div className="flex gap-4">
-        <div className={`flex h-14 w-14 flex-none items-center justify-center rounded-md ${completed ? "bg-[#263421]" : "bg-[#b00000]"}`}>
+        <div className={`flex h-14 w-14 flex-none items-center justify-center rounded-md ${completed ? "bg-[#4a0c0c]" : "bg-[#b00000]"}`}>
           {completed ? <Check className="h-5 w-5 text-[#c6f2bc]" /> : <Play className="h-5 w-5 text-white" fill="currentColor" />}
         </div>
         <div className="min-w-0">
-          <div className="text-xs font-bold uppercase tracking-[0.18em] text-[#ffb0a8]">{completed ? "Completed" : "Start Here"}</div>
+          <div className="text-xs font-bold uppercase tracking-[0.18em] text-[#ffb0a8]">{completed ? "Selesai" : "Mulai Di Sini"}</div>
           <div className="mt-1 text-lg font-bold text-[#f1eeee]">Pre-Quiz Diagnostik</div>
           <p className="mt-2 text-sm leading-6 text-[#c9bdb8]">Uji pengetahuan mengenai pinjaman online sebelum memulai pembelajaran</p>
           <Button asChild size="sm" className="mt-5 bg-[#9c0000] text-white hover:bg-[#bd1414]">

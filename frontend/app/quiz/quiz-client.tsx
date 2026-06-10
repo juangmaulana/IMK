@@ -269,7 +269,7 @@ export default function QuizClient({ searchParams }: { searchParams: SearchParam
             <div className="h-1 rounded-full bg-secondary">
               <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${((idx + 1) / total) * 100}%` }} />
             </div>
-            <div className="mt-1 text-center text-xs uppercase tracking-widest text-muted-foreground">Question {idx + 1} of {total}</div>
+            <div className="mt-1 text-center text-xs uppercase tracking-widest text-muted-foreground">Pertanyaan {idx + 1} dari {total}</div>
           </div>
           <div className="flex items-center gap-1 rounded-md border border-border bg-card px-3 py-1.5 text-sm font-semibold">
             <Coins className="h-4 w-4 text-primary" /> {points.toLocaleString("id-ID")}
@@ -286,7 +286,7 @@ export default function QuizClient({ searchParams }: { searchParams: SearchParam
             const isAnswer = current.correct === optionIndex;
             let cls = "border-border bg-card hover:border-primary/50";
             if (submitted && isAnswer) cls = "border-success bg-success/10";
-            else if (submitted && isPicked && !isAnswer) cls = "border-primary bg-primary/10";
+            else if (submitted && isPicked && !isAnswer) cls = "border-destructive bg-destructive/10";
 
             return (
               <button
@@ -299,7 +299,7 @@ export default function QuizClient({ searchParams }: { searchParams: SearchParam
                     submitted && isAnswer
                       ? "bg-success text-success-foreground"
                       : submitted && isPicked
-                        ? "bg-primary text-primary-foreground"
+                        ? "bg-destructive text-destructive-foreground"
                         : "bg-secondary text-muted-foreground"
                   }`}
                 >
@@ -313,13 +313,13 @@ export default function QuizClient({ searchParams }: { searchParams: SearchParam
         </div>
 
         {submitted && (
-          <div className={`mt-8 flex flex-col justify-between gap-4 rounded-xl border p-4 sm:flex-row ${isCorrect ? "border-primary/40 bg-primary/10" : "border-destructive/40 bg-destructive/10"}`}>
+          <div className={`mt-8 flex flex-col justify-between gap-4 rounded-xl border p-4 sm:flex-row ${isCorrect ? "border-success/40 bg-success/10" : "border-destructive/40 bg-destructive/10"}`}>
             <div className="flex items-start gap-3">
-              <div className={`flex h-9 w-9 items-center justify-center rounded-md ${isCorrect ? "bg-primary/20 text-primary" : "bg-destructive/20 text-destructive"}`}>
+              <div className={`flex h-9 w-9 items-center justify-center rounded-md ${isCorrect ? "bg-success/20 text-success" : "bg-destructive/20 text-destructive"}`}>
                 {isCorrect ? <Check className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
               </div>
               <div>
-                <div className="text-base font-bold">{isCorrect ? "FINLIT Insight!" : "Incorrect Answer"}</div>
+                <div className="text-base font-bold">{isCorrect ? "Jawaban Benar!" : "Jawaban Kurang Tepat"}</div>
                 <div className="text-sm leading-relaxed text-muted-foreground">{current.explanation}</div>
               </div>
             </div>
@@ -329,7 +329,7 @@ export default function QuizClient({ searchParams }: { searchParams: SearchParam
                   +{isFinal ? 20 : 10} <Coins className="h-3 w-3 text-primary" />
                 </span>
               )}
-              <Button size="sm" onClick={next}>Continue →</Button>
+              <Button size="sm" onClick={next}>Lanjut →</Button>
             </div>
           </div>
         )}
